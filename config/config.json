@@ -1,0 +1,21 @@
+{
+  "manager": {
+    "config_dir": "tmp/temp/config",
+    "result_dir": "tmp/temp",
+    "result_ext": "log",
+    "input_dir": "tmp/input"
+  },
+  "scheduler": {
+    "worker_max": 16
+  },
+  "driver": {
+    "type": "file",
+    "config_file": "example/task-config.csv",
+    "input_file": "example/task-inputs.csv",
+    "result_dir": "tmp/example/result",
+    "error_file": "tmp/example/error.log",
+    "worker_command": "example.py",
+    "worker_params": "-c %C -r %R %I",
+    "worker_path": "example"
+  }
+}
