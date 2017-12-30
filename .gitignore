@@ -1,2 +1,6 @@
 # Pycharm Project files
 .idea
+
+# Meta or log files
+*.log
+~*.swp

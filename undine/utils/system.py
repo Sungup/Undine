@@ -1,6 +1,9 @@
-import platform
+from __future__ import print_function
+
 import multiprocessing
+import platform
 import subprocess
+import sys
 
 
 class System:
@@ -49,3 +52,7 @@ class System:
         net_query.wait()
 
         return output.strip()
+
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
