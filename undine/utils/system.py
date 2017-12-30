@@ -7,15 +7,17 @@ import sys
 
 
 class System:
-    __window_gw_query__ = '@for /f "token=3" %j in ' \
+    _MACOS_DQ_QUERY = (('route', '-n', 'get', 'default'),
+                       ('awk', '/gateway/ { print $2 }'))
+
+    _LINUX_GW_QUERY = (('ip', 'route', 'show', 'default'),
+                       ('awk', '/default/ { print $3 }'))
+
+    '''
+    _WINDOW_GW_QUERY = '@for /f "token=3" %j in ' \
                             '(\'route print ^|findstr "\\<0.0.0.0\\>"\') ' \
                             'do @echo %j'
-
-    __mac_gw_query__ = (('route', '-n', 'get', 'default'),
-                        ('awk', '/gateway/ { print $2 }'))
-
-    __linux_gw_query__ = (('ip', 'route', 'show', 'default'),
-                          ('awk', '/default/ { print $3 }'))
+    '''
 
     @staticmethod
     def is_window():
@@ -39,9 +41,9 @@ class System:
         if System.is_window():
             raise Exception('Currently windows platform not in support')
         elif System.is_mac():
-            query = System.__mac_gw_query__
+            query = System._MACOS_DQ_QUERY
         else:
-            query = System.__linux_gw_query__
+            query = System._LINUX_GW_QUERY
 
         # Query the network device
         net_query = subprocess.Popen(query[0], stdout=subprocess.PIPE)

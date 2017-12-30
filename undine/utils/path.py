@@ -10,26 +10,37 @@ class Path:
 
     ''' Error description variables
     '''
-    __dir_create_fail__ = "Couldn't make directory path({0}) to store {1}."
-    __file_create_fail__ = "Couldn't create file({0})."
+    _DIR_CREATE_FAIL = "Couldn't make directory path({0}) to store {1}."
+    _FILE_CREATE_FAIL = "Couldn't create file({0})."
 
     @staticmethod
-    def open_uuid_file(directory, ext):
+    def gen_file_path(directory, name, ext):
         # 1. Get full random uuid filename
-        filename = directory + str(uuid.uuid4()) + '.' + ext
+        filename = os.path.join(directory, name + '.' + ext)
 
         # 2. Make directory if not exist
         try:
             os.makedirs(directory, mode=0o700, exist_ok=True)
 
+        except OSError:
+            eprint(Path._DIR_CREATE_FAIL.format(directory, 'uuid file'))
+            raise
+
+        return filename
+
+    @staticmethod
+    def gen_uuid_file_path(directory, ext):
+        return Path.gen_file_path(directory, str(uuid.uuid4()), ext)
+
+    @staticmethod
+    def open_uuid_file(directory, ext):
+        filename = Path.gen_uuid_file_path(directory, ext)
+
+        try:
             fp = open(filename, mode='w')
 
             return fp
 
-        except OSError:
-            eprint(Path.__dir_create_fail__.format(directory, 'uuid file'))
-            raise
-
         except IOError:
-            eprint(Path.__file_create_fail__.format(filename))
+            eprint(Path._FILE_CREATE_FAIL.format(filename))
             raise

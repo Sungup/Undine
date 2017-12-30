@@ -1,8 +1,8 @@
 {
   "manager": {
     "config_dir": "tmp/temp/config",
-    "result_dir": "tmp/temp",
-    "result_ext": "log",
+    "result_dir": "tmp/temp/result",
+    "result_ext": ".json",
     "input_dir": "tmp/input"
   },
   "scheduler": {

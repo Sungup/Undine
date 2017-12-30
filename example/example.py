@@ -14,8 +14,8 @@ class Example:
 
     ''' Error description variables.
     '''
-    __file_not_exist__ = 'File not exists at {0}\n'
-    __file_create_fail__ = "Couldn't create file({0})"
+    _FILE_NOT_EXIST = 'File not exists at {0}\n'
+    _FILE_CREATE_FAIL = "Couldn't create file({0})"
 
     ''' Input argument data type and argument list.
     '''
@@ -23,49 +23,49 @@ class Example:
                         ['short', 'long', 'dest', 'action', 'meta', 'help',
                          'required'])
 
-    __OPTIONS__ = [
+    _OPTIONS = [
         Option('-c', '--config', 'config_file', 'store', 'PATH',
                'Config file path', True),
         Option('-r', '--result', 'result_file', 'store', 'PATH',
                'Result file path', True)
     ]
 
-    def __listing_args__(self):
+    def _listing_args(self):
         string = ['\n==========[ Program Arguments ]==========\n']
 
         string.extend(["{0}: {1}\n".format(k.upper(), v)
-                       for k, v in vars(self.config).items()])
+                       for k, v in vars(self._config).items()])
 
         return string
 
-    def __listing_conf__(self):
+    def _listing_conf(self):
         string = ['\n========[ Config File Contents ]=========\n']
 
         try:
-            json_string = json.load(open(self.config_file, 'r'))
+            json_string = json.load(open(self._config_file, 'r'))
             string.append(json.dumps(json_string, indent=4) + '\n')
 
         except IOError:
-            string.append(self.__file_not_exist__.format(self.config_file))
+            string.append(self._FILE_NOT_EXIST.format(self._config_file))
 
         return string
 
-    def __listing_input__(self):
+    def _listing_input(self):
         string = ['\n=========[ Input File Contents ]=========\n']
 
-        for val in self.files:
+        for val in self._files:
             string.append('------------[ File Contents ]------------\n')
             string.append('Filename: {0}\n'.format(val))
 
             if os.path.exists(val) and os.path.isfile(val):
                 string.append('Contents:\n{0}\n'.format(open(val, 'r').read()))
             else:
-                string.append(self.__file_not_exist__.format(val))
+                string.append(self._FILE_NOT_EXIST.format(val))
 
         return string
 
     @staticmethod
-    def __parse__(options = __OPTIONS__):
+    def _parse(options = _OPTIONS):
         """ Arguments parsing method
 
         :param options: List of Example.Option tuple object.
@@ -79,20 +79,18 @@ class Example:
                                 help=item.help, required=item.required)
 
         parser.add_argument('files', metavar='FILE',
-                            nargs=argparse.REMAINDER, help='Input files')
+                            nargs=argparse.REMAINDER, help='Input _files')
 
         return parser.parse_args()
 
     def __init__(self):
         """ Constructor
         """
-        self.config = self.__parse__()
+        self._config = self._parse()
 
-        print(self.config)
-
-        self.config_file = self.config.config_file
-        self.result_file = self.config.result_file
-        self.files = self.config.files
+        self._config_file = self._config.config_file
+        self._result_file = self._config.result_file
+        self._files = self._config.files
 
     def run(self):
         """ Task run method
@@ -100,15 +98,15 @@ class Example:
         :return: Nothing
         """
         try:
-            with open(self.result_file, 'w') as f_out:
+            with open(self._result_file, 'w') as f_out:
                 f_out.write("Executed script: {0}\n".format(__file__))
                 f_out.write("Working Directory: {0}\n".format(os.getcwd()))
-                f_out.writelines(self.__listing_args__())
-                f_out.writelines(self.__listing_conf__())
-                f_out.writelines(self.__listing_input__())
+                f_out.writelines(self._listing_args())
+                f_out.writelines(self._listing_conf())
+                f_out.writelines(self._listing_input())
 
         except IOError:
-            sys.stderr.write(self.__file_create_fail__.format(self.result_file))
+            sys.stderr.write(self._FILE_CREATE_FAIL.format(self._result_file))
             raise
 
 
