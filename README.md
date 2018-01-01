@@ -8,4 +8,4 @@ simulation infrastructure. **Don't follow, watch, and touch this project!!**
 
 ## Configuration
 
-Check the configuration document ([link](doc/configure.md Configuration)).
+Check the configuration document ([link](doc/configure.md)).

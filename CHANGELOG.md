@@ -49,4 +49,4 @@ All notable changes to this project will be documented in this file.
 - Add basic config file
   - `config/config.json`: Default configure file of Undine.
   
-[Unreleased]: /ARIA/Undine/compare/v0.0.1...HEAD
+[Unreleased]: https://sglove.dip.jp/ARIA/Undine/compare/v0.0.1...HEAD
