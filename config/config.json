@@ -11,10 +11,10 @@
     "log_level": "info"
   },
   "driver": {
-    "type": "file",
+    "type": "json",
     "config_ext": ".json",
-    "config_file": "example/task-config.csv",
-    "input_file": "example/task-inputs.csv",
+    "config_file": "example/task-config.json",
+    "input_file": "example/task-inputs.json",
     "result_dir": "tmp/example/result",
     "result_ext": ".log",
     "worker_command": "example.py",

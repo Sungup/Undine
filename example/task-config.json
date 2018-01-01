@@ -1,0 +1,82 @@
+{
+  "config0": {
+    "id": "ExampleID0",
+    "name": "Example JSON Info 0",
+    "config": {
+      "option1": "value1",
+      "option2": "value2"
+    }
+  },
+  "config1": {
+    "id": "ExampleID1",
+    "name": "Example JSON Info 1",
+    "config": {
+      "option1": "value1",
+      "option2": "value4"
+    }
+  },
+  "config2": {
+    "id": "ExampleID2",
+    "name": "Example JSON Info 2",
+    "config": {
+      "option1": "value1",
+      "option2": "value6"
+    }
+  },
+  "config3": {
+    "id": "ExampleID3",
+    "name": "Example JSON Info 3",
+    "config": {
+      "option1": "value1",
+      "option2": "value8"
+    }
+  },
+  "config4": {
+    "id": "ExampleID4",
+    "name": "Example JSON Info 4",
+    "config": {
+      "option1": "value1",
+      "option2": "value0"
+    }
+  },
+  "config5": {
+    "id": "ExampleID5",
+    "name": "Example JSON Info 5",
+    "config": {
+      "option1": "value1",
+      "option2": "value2"
+    }
+  },
+  "config6": {
+    "id": "ExampleID6",
+    "name": "Example JSON Info 6",
+    "config": {
+      "option1": "value1",
+      "option2": "value4"
+    }
+  },
+  "config7": {
+    "id": "ExampleID7",
+    "name": "Example JSON Info 7",
+    "config": {
+      "option1": "value1",
+      "option2": "value6"
+    }
+  },
+  "config8": {
+    "id": "ExampleID8",
+    "name": "Example JSON Info 8",
+    "config": {
+      "option1": "value1",
+      "option2": "value8"
+    }
+  },
+  "config9": {
+    "id": "ExampleID9",
+    "name": "Example JSON Info 9",
+    "config": {
+      "option1": "value1",
+      "option2": "value0"
+    }
+  }
+}

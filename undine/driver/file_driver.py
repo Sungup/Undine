@@ -14,7 +14,7 @@ class FileDriver(DriverBase):
     _DEFAULT_WORKER_DIR = ''
 
     #
-    # Private methods
+    # Private/Protected methods
     #
     def _load_config(self, file_path):
         self._configs = dict()
