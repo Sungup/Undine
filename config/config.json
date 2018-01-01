@@ -11,11 +11,13 @@
   "driver": {
     "type": "file",
     "config_file": "example/task-config.csv",
+    "config_ext": ".json",
+    "error_file": "tmp/example/error.log",
     "input_file": "example/task-inputs.csv",
     "result_dir": "tmp/example/result",
-    "error_file": "tmp/example/error.log",
+    "result_ext": ".log",
     "worker_command": "example.py",
-    "worker_params": "-c %C -r %R %I",
-    "worker_path": "example"
+    "worker_arguments": "-c %C -r %R %I",
+    "worker_dir": "example"
   }
 }

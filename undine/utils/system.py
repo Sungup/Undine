@@ -58,3 +58,11 @@ class System:
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
+
+def print_console_header(string, splitter='-'):
+    str_size = len(string) + 2
+    left_size = 80 - str_size
+    right_size = 80 - left_size - str_size
+
+    return '{1} {0} {2}'.format(string, splitter*left_size, splitter*right_size)

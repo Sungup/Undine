@@ -4,8 +4,6 @@ from multiprocessing import Queue
 
 import subprocess
 
-import threading
-
 
 class TaskThread:
     def __init__(self):
@@ -32,8 +30,8 @@ class TaskThread:
         return bytes(self._error).decode('utf-8')
 
     @property
-    def state(self):
-        return self._state
+    def success(self):
+        return self._state == 0
 
 
 class TaskScheduler:
@@ -45,6 +43,7 @@ class TaskScheduler:
         self._manager = manager
         self._pool = Semaphore(self._workers)
 
+        # ==================================================
         # TODO Check thread table is useful.
         self._ticket = Queue()
         self._thread = list()
@@ -52,6 +51,7 @@ class TaskScheduler:
         for thread_id in range(0, self._workers):
             self._ticket.put(thread_id)
             self._thread.append(None)
+        # ==================================================
 
     def wait_all(self):
         # Get all semaphore pool
@@ -62,24 +62,43 @@ class TaskScheduler:
         # Get a worker resource from pool
         self._pool.acquire()
 
+        # ==================================================
         # TODO Check thread table is useful.
         worker_id = self._ticket.get()
 
         if self._thread[worker_id]:
             self._thread[worker_id].join()
 
-        self._thread[worker_id] = Thread(target=TaskScheduler._procedure,
-                                         args=(self, worker_id, task))
-        self._thread[worker_id].start()
+        thread = Thread(target=TaskScheduler._procedure,
+                        args=(self, task, worker_id))
 
+        self._thread[worker_id] = thread
+        # ==================================================
+        # else condition method
+        # thread = Thread(target=TaskScheduler._procedure, args=(self, task))
+        # ==================================================
+
+        thread.start()
+
+    # ==================================================
+    # TODO Check thread table is useful.
+    # @staticmethod
+    # def _procedure(self, task):
+    # ==================================================
     @staticmethod
-    def _procedure(self, worker_id, task):
-        # TODO implementing here
+    def _procedure(self, task, worker_id):
         thread = TaskThread()
         thread.run(task)
 
+        if thread.success:
+            task.success(thread.result_message)
+        else:
+            task.fail(thread.error_message)
+
         self._manager.task_complete(thread)
 
+        # ==================================================
         # TODO Check thread table is useful.
         self._ticket.put(worker_id)
         self._pool.release()
+        # ==================================================

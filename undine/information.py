@@ -11,8 +11,8 @@ class ConfigInfo:
         self._cid = int(kwargs['cid'])
         self._name = kwargs['name']
 
-        dir_ = kwargs.setdefault('directory', '')
-        ext_ = kwargs.setdefault('type', self._DEFAULT_CONFIG_EXT)
+        dir_ = kwargs.setdefault('dir', '')
+        ext_ = kwargs.setdefault('ext', self._DEFAULT_CONFIG_EXT)
 
         self._path = Path.gen_uuid_file_path(dir_, ext_)
 
@@ -46,10 +46,10 @@ class InputInfo:
         self._iid = int(kwargs['iid'])
         self._name = kwargs['name']
 
-        self._items = kwargs['items']
-
         if isinstance(self._items, str):
             self._items = [item.strip() for item in kwargs['items'].split(',')]
+        else:
+            self._items = kwargs['items']
 
     def __str__(self):
         return self._STRING_FORMAT.format(self._iid, self._name, self._items)
@@ -85,17 +85,17 @@ class InputInfo:
 
 
 class WorkerInfo:
-    _STRING_FORMAT = "{'wid':{0}, 'path':'{1}', 'cmd':'{2}', 'argument':'{3}'}"
+    _STRING_FORMAT = "{'wid':{0}, 'dir':'{1}', 'cmd':'{2}', 'arguments':'{3}'}"
 
     def __init__(self, **kwargs):
         self._wid = int(kwargs['wid'])
-        self._path = kwargs.setdefault('path', '')
+        self._path = kwargs.setdefault('dir', '')
         self._cmd = kwargs['cmd']
-        self._argument = kwargs['argument']
+        self._arguments = kwargs['arguments']
 
     def __str__(self):
         return self._STRING_FORMAT.format(self._wid, self._path, self._cmd,
-                                          self._argument)
+                                          self._arguments)
 
     @property
     def wid(self):
@@ -107,7 +107,7 @@ class WorkerInfo:
 
     @property
     def argument(self):
-        return self._argument
+        return self._arguments
 
 
 class TaskInfo:

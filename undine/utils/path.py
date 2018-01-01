@@ -29,6 +29,19 @@ class Path:
         return filename
 
     @staticmethod
+    def open_file(directory, name, ext):
+        filename = Path.gen_file_path(directory, name, ext)
+
+        try:
+            fp = open(filename, mode='w')
+
+            return fp
+
+        except IOError:
+            eprint(Path._FILE_CREATE_FAIL.format(filename))
+            raise
+
+    @staticmethod
     def gen_uuid_file_path(directory, ext):
         return Path.gen_file_path(directory, str(uuid.uuid4()), ext)
 

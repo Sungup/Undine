@@ -1,8 +1,9 @@
 from collections import namedtuple
 from argparse import ArgumentParser
+from undine.driver.driver_factory import TaskDriverFactory
 from undine.utils.exception import UndineException
-from undine.task import Task
 from undine.process import TaskScheduler
+from undine.task import Task
 
 import os
 import json
@@ -47,9 +48,13 @@ class TaskManager:
         'input_dir': None
     }
 
+    _DRIVER_ERR_MESSAGE = 'Driver configuration should be set in config file'
+
     def __init__(self, config):
-        # TODO this code line is the debug mode codes.
-        self._driver = None
+        if 'driver' not in config:
+            raise UndineException(self._DRIVER_ERR_MESSAGE)
+
+        self._driver = TaskDriverFactory.create(config['driver'])
         self._scheduler = TaskScheduler(self,
                                         config.setdefault('scheduler', dict()))
 
@@ -68,8 +73,6 @@ class TaskManager:
 
             # Notify to driver this task will control this manager
             driver.preempt(task.tid)
-
-            # TODO: Caching the worker and config information
 
             config = driver.config(task.cid)
             worker = driver.worker(task.wid)
