@@ -4,6 +4,7 @@
 # Meta or log files
 *.log
 ~*.swp
+__pycache__
 
 # temporary directory
 tmp/

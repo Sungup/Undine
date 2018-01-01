@@ -2,13 +2,15 @@ from undine.utils.exception import UndineException
 
 # For factory item
 import undine.driver.file_driver
+import undine.driver.json_driver
 
 
 class TaskDriverFactory:
     _INVALID_TYPE = "Unsupported driver type '{}'"
 
     _DRIVERS = {
-        'file': undine.driver.file_driver.FileDriver
+        'file': undine.driver.file_driver.FileDriver,
+        'json': undine.driver.json_driver.JSONDriver
     }
 
     @staticmethod

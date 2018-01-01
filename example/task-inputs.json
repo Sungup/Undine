@@ -1,0 +1,7 @@
+{
+  "InputSet1": ["Input1.in","Input2.in","Input3.in","Input4.in"],
+  "InputSet2": ["Input2.in","Input4.in","Input6.in","Input8.in"],
+  "InputSet3": ["Input3.in","Input6.in","Input9.in","Input2.in"],
+  "InputSet4": ["Input4.in","Input8.in","Input2.in","Input6.in"],
+  "InputSet5": ["Input5.in","Input0.in","Input5.in","Input0.in"]
+}
