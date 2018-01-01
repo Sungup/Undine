@@ -51,14 +51,16 @@ class TaskManager:
     _DRIVER_ERR_MESSAGE = 'Driver configuration should be set in config file'
 
     def __init__(self, config):
+        self._config = self._default_opts(config['manager'])
+
         if 'driver' not in config:
             raise UndineException(self._DRIVER_ERR_MESSAGE)
 
-        self._driver = TaskDriverFactory.create(config['driver'])
+        self._driver = TaskDriverFactory.create(config['driver'],
+                                                self._config['config_dir'])
+
         self._scheduler = TaskScheduler(self,
                                         config.setdefault('scheduler', dict()))
-
-        self._config = self._default_opts(config['manager'])
 
     def _default_opts(self, config):
         return dict([(k, config.setdefault(k, v))

@@ -16,7 +16,7 @@ class Path:
     @staticmethod
     def gen_file_path(directory, name, ext):
         # 1. Get full random uuid filename
-        filename = os.path.join(directory, name + '.' + ext)
+        filename = os.path.join(directory, name + ext)
 
         # 2. Make directory if not exist
         try:

@@ -1,23 +1,17 @@
-from datetime import datetime
 from os import makedirs, path
 from undine.driver.driver_base import DriverBase
 from undine.utils.exception import UndineException
-from undine.utils.system import print_console_header, eprint
 from undine.information import ConfigInfo, WorkerInfo, InputInfo, TaskInfo
 
 
 class FileDriver(DriverBase):
     _DEFAULT_CONFIG_EXT = '.json'
-    _DEFAULT_ERROR_FILE = '/tmp/undine.log'
     _DEFAULT_RESULT_DIR = 'results'
     _DEFAULT_RESULT_EXT = '.log'
     _DEFAULT_WORKER_ID = 0
     _DEFAULT_WORKER_CMD = 'example.rb'
     _DEFAULT_WORKER_ARGS = '-c %C -r %R %I'
     _DEFAULT_WORKER_DIR = ''
-
-    _FILE_CREATE_FAIL = "Couldn't create file({0})."
-    _ERROR_LOG_HEADER = print_console_header('Error Message Start', '=')
 
     #
     # Private methods
@@ -81,9 +75,9 @@ class FileDriver(DriverBase):
                 self._state['ready'].append(tid)
 
     def _task_name(self, task):
-        return "{0}-{1}-{2}".format(self._configs[task.cid].name,
-                                    self._inputs[task.iid].name,
-                                    task.tid)
+        return "tid{0}-{1}-{2}".format(task.tid,
+                                       self._configs[task.cid].name,
+                                       self._inputs[task.iid].name)
 
     def _task_filename(self, task, ext):
         return "{0}{1}".format(self._task_name(task), ext)
@@ -98,7 +92,7 @@ class FileDriver(DriverBase):
     # Constructor & Destructor
     #
     def __init__(self, config, config_dir):
-        DriverBase.__init__(self, config_dir)
+        DriverBase.__init__(self, config, config_dir)
 
         # 1. Check input parameter is not missing
         if 'config_file' not in config:
@@ -127,14 +121,6 @@ class FileDriver(DriverBase):
 
         makedirs(self._result_dir, mode=0o700, exist_ok=True)
 
-        # 5. Make error log file
-        error_file = config.setdefault('error_file', self._DEFAULT_ERROR_FILE)
-        try:
-            self._err = open(error_file, 'w')
-
-        except IOError:
-            raise UndineException(self._FILE_CREATE_FAIL.format(error_file))
-
     #
     # Inherited methods
     #
@@ -162,8 +148,8 @@ class FileDriver(DriverBase):
         self._results[tid] = contents
 
         # Store result file in file repository
-        filename = self._task_filename(task, self._DEFAULT_RESULT_EXT)
-        with open(path.join(self._result_dir, filename)) as f_out:
+        filename = self._task_filename(task, self._result_ext)
+        with open(path.join(self._result_dir, filename), 'w') as f_out:
             f_out.write(contents)
 
         return True
@@ -173,13 +159,9 @@ class FileDriver(DriverBase):
 
     def fail(self, tid, message):
         task = self._move_state(tid, 'issued', 'failed')
-        title = '{2} - Task: {0}, ID: {1}'.format(self._task_name(task), tid,
-                                                  datetime.now().time())
+        title = 'tid({1}) - {0}'.format(self._task_name(task), tid)
 
-        self._err.write('{0}\n{1}\n{2}\n'.format(self._ERROR_LOG_HEADER,
-                                                 title, message))
-
-        eprint('[ERROR] {}'.format(title))
+        self._error_logging(title, message)
 
     def wait_others(self):
         return bool(self._state['ready'])

@@ -1,8 +1,9 @@
-from undine.utils.system import System
-from threading import Semaphore, Thread
 from multiprocessing import Queue
+from threading import Semaphore, Thread
+from undine.utils.system import System
 
 import subprocess
+import undine.utils.logging as logging
 
 
 class TaskThread:
@@ -35,6 +36,17 @@ class TaskThread:
 
 
 class TaskScheduler:
+    _SCHEDULER_LOGGER_NAME = 'undine-scheduler'
+    _SCHEDULER_LOGGER_PATH = '/tmp/{}.log'.format(_SCHEDULER_LOGGER_NAME)
+    _SCHEDULER_LOGGER_LEVEL = 'ERROR'
+
+    def _log_string(self, name, task):
+        if logging.is_debug(self._logger):
+            return "tid({1}) {0}\n\tcommand -> {2}".format(name,
+                                                           task.tid, task.cmd)
+        else:
+            return "tid({1}) {0}".format(name, task.tid)
+
     def __init__(self, manager, config):
         system_cpu = System.cpu_cores() - 1
         config_cpu = int(config.setdefault('max_cpu', '0'))
@@ -42,6 +54,13 @@ class TaskScheduler:
         self._workers = max(system_cpu, config_cpu)
         self._manager = manager
         self._pool = Semaphore(self._workers)
+
+        # Create logger instance
+        log_path = config.setdefault('log_file', self._SCHEDULER_LOGGER_PATH)
+        log_level = config.setdefault('log_level', self._SCHEDULER_LOGGER_LEVEL)
+
+        self._logger = logging.get_logger(self._SCHEDULER_LOGGER_NAME,
+                                          log_path, log_level)
 
         # ==================================================
         # TODO Check thread table is useful.
@@ -88,14 +107,19 @@ class TaskScheduler:
     @staticmethod
     def _procedure(self, task, worker_id):
         thread = TaskThread()
-        thread.run(task)
+
+        self._logger.info(self._log_string("Task start", task))
+
+        thread.run(task.cmd)
 
         if thread.success:
             task.success(thread.result_message)
+            self._logger.info(self._log_string("Task complete", task))
         else:
             task.fail(thread.error_message)
+            self._logger.info(self._log_string("Task fail", task))
 
-        self._manager.task_complete(thread)
+        self._manager.task_complete(task)
 
         # ==================================================
         # TODO Check thread table is useful.

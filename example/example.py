@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-from argparse import ArgumentParser
+from argparse import ArgumentParser, REMAINDER
 from collections import namedtuple
+from time import sleep
+from random import randrange
+from sys import stderr
 
-import argparse
 import json
 import os
-import sys
 
 
 class Example:
@@ -79,7 +80,7 @@ class Example:
                                 help=item.help, required=item.required)
 
         parser.add_argument('files', metavar='FILE',
-                            nargs=argparse.REMAINDER, help='Input _files')
+                            nargs=REMAINDER, help='Input _files')
 
         return parser.parse_args()
 
@@ -98,15 +99,20 @@ class Example:
         :return: Nothing
         """
         try:
+            random_sleep = randrange(1, 10)
+
             with open(self._result_file, 'w') as f_out:
                 f_out.write("Executed script: {0}\n".format(__file__))
                 f_out.write("Working Directory: {0}\n".format(os.getcwd()))
+                f_out.write("Random Sleep: {0}\n".format(random_sleep))
                 f_out.writelines(self._listing_args())
                 f_out.writelines(self._listing_conf())
                 f_out.writelines(self._listing_input())
 
+            sleep(random_sleep)
+
         except IOError:
-            sys.stderr.write(self._FILE_CREATE_FAIL.format(self._result_file))
+            stderr.write(self._FILE_CREATE_FAIL.format(self._result_file))
             raise
 
 

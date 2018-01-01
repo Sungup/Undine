@@ -2,22 +2,25 @@
   "manager": {
     "config_dir": "tmp/temp/config",
     "result_dir": "tmp/temp/result",
-    "result_ext": ".json",
+    "result_ext": ".log",
     "input_dir": "tmp/input"
   },
   "scheduler": {
-    "worker_max": 16
+    "worker_max": 16,
+    "log_file": "tmp/temp/scheduler.log",
+    "log_level": "info"
   },
   "driver": {
     "type": "file",
-    "config_file": "example/task-config.csv",
     "config_ext": ".json",
-    "error_file": "tmp/example/error.log",
+    "config_file": "example/task-config.csv",
     "input_file": "example/task-inputs.csv",
     "result_dir": "tmp/example/result",
     "result_ext": ".log",
     "worker_command": "example.py",
     "worker_arguments": "-c %C -r %R %I",
-    "worker_dir": "example"
+    "worker_dir": "example",
+    "log_file": "tmp/temp/driver.log",
+    "log_level": "info"
   }
 }

@@ -61,8 +61,9 @@ class Task:
         self._worker = w_info
 
         dir_ = kwargs.setdefault('result_dir', '')
-        ext_ = kwargs.setdefault('ext', '.json')
-        name_ = "{0}-{1}".format(c_info.name, i_info.name)
+        ext_ = kwargs.setdefault('result_ext', '.json')
+        name_ = "{0}-{1}-{2}-{3}".format(tid,
+                                         w_info.wid, c_info.name, i_info.name)
 
         self._config_path = c_info.path
         self._result_path = Path.gen_file_path(dir_, name_, ext_)

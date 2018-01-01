@@ -62,7 +62,7 @@ def eprint(*args, **kwargs):
 
 def print_console_header(string, splitter='-'):
     str_size = len(string) + 2
-    left_size = 80 - str_size
+    left_size = (80 - str_size) // 2
     right_size = 80 - left_size - str_size
 
     return '{1} {0} {2}'.format(string, splitter*left_size, splitter*right_size)

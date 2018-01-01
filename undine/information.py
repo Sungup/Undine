@@ -16,8 +16,8 @@ class ConfigInfo:
 
         self._path = Path.gen_uuid_file_path(dir_, ext_)
 
-        with open(self._path, 'w') as f_out_:
-            f_out_.write(kwargs.setdefault('config', ''))
+        with open(self._path, 'w') as f_out:
+            f_out.write(kwargs.setdefault('config', ''))
 
     def __del__(self):
         unlink(self._path)
@@ -46,7 +46,7 @@ class InputInfo:
         self._iid = int(kwargs['iid'])
         self._name = kwargs['name']
 
-        if isinstance(self._items, str):
+        if isinstance(kwargs['items'], str):
             self._items = [item.strip() for item in kwargs['items'].split(',')]
         else:
             self._items = kwargs['items']
@@ -104,6 +104,10 @@ class WorkerInfo:
     @property
     def cmd(self):
         return path.join(self._path, self._cmd)
+
+    @property
+    def name(self):
+        return self._cmd
 
     @property
     def argument(self):
