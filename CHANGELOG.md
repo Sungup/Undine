@@ -6,7 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Add documentation file.
+- Add some drivers.
+  - `json_driver.py`: Add JSON Driver
+  - Add SQLite3 Driver
+
+- Add document file.
 
 ### Changed
 

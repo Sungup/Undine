@@ -13,8 +13,8 @@
   "driver": {
     "type": "json",
     "config_ext": ".json",
-    "config_file": "example/task-config.json",
-    "input_file": "example/task-inputs.json",
+    "config_file": "example/json/task-config.json",
+    "input_file": "example/json/task-inputs.json",
     "result_dir": "tmp/example/result",
     "result_ext": ".log",
     "worker_command": "example.py",

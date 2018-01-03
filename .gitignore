@@ -6,5 +6,6 @@
 ~*.swp
 __pycache__
 
-# temporary directory
+# temporary file and directory
 tmp/
+example/sqlite3/example.sqlite3
