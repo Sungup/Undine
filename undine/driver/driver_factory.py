@@ -3,6 +3,7 @@ from undine.utils.exception import UndineException
 # For factory item
 import undine.driver.file_driver
 import undine.driver.json_driver
+import undine.driver.sqlite_driver
 
 
 class TaskDriverFactory:
@@ -10,7 +11,8 @@ class TaskDriverFactory:
 
     _DRIVERS = {
         'file': undine.driver.file_driver.FileDriver,
-        'json': undine.driver.json_driver.JSONDriver
+        'json': undine.driver.json_driver.JSONDriver,
+        'sqlite': undine.driver.sqlite_driver.SQLiteDriver
     }
 
     @staticmethod
