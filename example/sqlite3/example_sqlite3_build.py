@@ -25,7 +25,10 @@ SQL_DB_CREATION = {
                     REFERENCES state_type(state))''',
     'result': '''CREATE TABLE IF NOT EXISTS result
                  (tid INTEGER NOT NULL PRIMARY KEY REFERENCES task(tid),
-                  content TEXT)'''
+                  content TEXT)''',
+    'error': '''CREATE TABLE IF NOT EXISTS error
+                (tid INTEGER NOT NULL PRIMARY KEY REFERENCES task(tid),
+                 message TEXT)'''
 }
 
 # 2. state_type initialize query
@@ -48,7 +51,7 @@ SQLITE3_DB_FILE = 'example.sqlite3'
 
 TASK_CONFIG_FILE = '../json/task-config.json'
 TASK_INPUT_FILE = '../json/task-inputs.json'
-SYSTEM_CONFIG_FILE = '../../config/config.json'
+SYSTEM_CONFIG_FILE = '../../config/config-json.json'
 
 #
 # Connect into sqlite3 file
@@ -121,8 +124,12 @@ for c_cid_, c_name_ in c_info_.items():
         t_tid_ += 1
 
 #
-# Insert Configs
+# Check
 #
+cursor_.execute("SELECT COUNT(tid) FROM task WHERE state = 'R'")
+result = cursor_.fetchone()
+
+print(result[0])
 
 #
 # Commit and Disconnect
