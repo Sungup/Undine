@@ -8,11 +8,15 @@ All notable changes to this project will be documented in this file.
 
 - Add some drivers.
   - `json_driver.py`: Add JSON Driver
-  - Add SQLite3 Driver
+  - `sqlite_driver.py`: Add SQLite3 Driver
+    - `example_sqlite3_build`: Example SQLite3 database file generator
 
 - Add document file.
 
 ### Changed
+
+- Move example config file into each sub-directory
+- Add new basic config file for the SQLite3
 
 ### Removed
 

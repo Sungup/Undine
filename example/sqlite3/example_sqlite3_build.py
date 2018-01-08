@@ -105,7 +105,7 @@ i_iid_ = 0
 i_info_ = dict()
 
 for name, items in i_config_.items():
-    cursor_.execute(SQL_INPUT_INSERTION, (i_iid_, name, json.dumps(items)))
+    cursor_.execute(SQL_INPUT_INSERTION, (i_iid_, name, ','.join(items)))
     i_info_[i_iid_] = name
 
     i_iid_ += 1

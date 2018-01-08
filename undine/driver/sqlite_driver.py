@@ -48,9 +48,12 @@ class SQLiteDriver(DriverBase):
         if not path.isfile(self._db_file):
             raise UndineException("'db_file' is not exists")
 
-        self._conn = sqlite3.connect(self._db_file)
+        self._conn = sqlite3.connect(self._db_file, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._cursor = self._conn.cursor()
+
+    def __del__(self):
+        self._conn.close()
 
     #
     # Inherited methods
@@ -79,21 +82,25 @@ class SQLiteDriver(DriverBase):
 
     def preempt(self, tid):
         self._conn.execute(self._QUERY['preempt'], (tid, ))
+        self._conn.commit()
 
         return True
 
     def done(self, tid, contents):
         self._conn.execute(self._QUERY['done'], (tid, ))
         self._conn.execute(self._QUERY['result'], (tid, contents))
+        self._conn.commit()
 
         return True
 
     def cancel(self, tid):
         self._conn.execute(self._QUERY['cancel'], (tid, ))
+        self._conn.commit()
 
     def fail(self, tid, message):
         self._conn.execute(self._QUERY['fail'], (tid, ))
         self._conn.execute(self._QUERY['message'], (tid, message))
+        self._conn.commit()
 
         self._error_logging('tid({0})'.format(tid), message)
 

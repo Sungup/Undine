@@ -9,3 +9,4 @@ __pycache__
 # temporary file and directory
 tmp/
 example/sqlite3/example.sqlite3
+example/sqlite3/example.sqlite3-journal
