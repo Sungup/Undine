@@ -13,14 +13,14 @@
   "driver": {
     "type": "json",
     "config_ext": ".json",
+    "log_file": "tmp/temp/driver.log",
+    "log_level": "info",
     "config_file": "example/json/task-config.json",
     "input_file": "example/json/task-inputs.json",
     "result_dir": "tmp/example/result",
     "result_ext": ".log",
     "worker_command": "example.py",
     "worker_arguments": "-c %C -r %R %I",
-    "worker_dir": "example",
-    "log_file": "tmp/temp/driver.log",
-    "log_level": "info"
+    "worker_dir": "example"
   }
 }

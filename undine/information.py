@@ -8,7 +8,7 @@ class ConfigInfo:
     _STRING_FORMAT = "{'cid':{0}, 'name':'{1}', 'path':'{2}'}"
 
     def __init__(self, **kwargs):
-        self._cid = int(kwargs['cid'])
+        self._cid = kwargs['cid']
         self._name = kwargs['name']
 
         dir_ = kwargs.setdefault('dir', '')
@@ -43,7 +43,7 @@ class InputInfo:
     _STRING_FORMAT = "{'iid':{0}, 'name':'{1}', 'items':'{2}'}"
 
     def __init__(self, **kwargs):
-        self._iid = int(kwargs['iid'])
+        self._iid = kwargs['iid']
         self._name = kwargs['name']
 
         if isinstance(kwargs['items'], str):
@@ -88,7 +88,7 @@ class WorkerInfo:
     _STRING_FORMAT = "{'wid':{0}, 'dir':'{1}', 'cmd':'{2}', 'arguments':'{3}'}"
 
     def __init__(self, **kwargs):
-        self._wid = int(kwargs['wid'])
+        self._wid = kwargs['wid']
         self._path = kwargs.setdefault('dir', '')
         self._cmd = kwargs['cmd']
         self._arguments = kwargs['arguments']
@@ -118,10 +118,10 @@ class TaskInfo:
     _STRING_FORMAT = "{'tid':{0}, 'cid':{1}, 'iid':{2}, 'wid':{3}}"
 
     def __init__(self, **kwargs):
-        self._tid = int(kwargs['tid'])
-        self._cid = int(kwargs['cid'])
-        self._iid = int(kwargs['iid'])
-        self._wid = int(kwargs['wid'])
+        self._tid = kwargs['tid']
+        self._cid = kwargs['cid']
+        self._iid = kwargs['iid']
+        self._wid = kwargs['wid']
 
     def __str__(self):
         return self._STRING_FORMAT.format(self._tid, self._cid,

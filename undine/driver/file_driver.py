@@ -5,7 +5,6 @@ from undine.information import ConfigInfo, WorkerInfo, InputInfo, TaskInfo
 
 
 class FileDriver(DriverBase):
-    _DEFAULT_CONFIG_EXT = '.json'
     _DEFAULT_RESULT_DIR = 'results'
     _DEFAULT_RESULT_EXT = '.log'
     _DEFAULT_WORKER_ID = 0
@@ -102,9 +101,6 @@ class FileDriver(DriverBase):
             raise UndineException("'input_file' is not set in driver section")
 
         # 2. Get default values
-        self._config_ext = config.setdefault('config_ext',
-                                             self._DEFAULT_CONFIG_EXT)
-
         self._result_ext = config.setdefault('result_ext',
                                              self._DEFAULT_RESULT_EXT)
 
