@@ -9,11 +9,15 @@ class DriverBase:
     _DRIVER_LOGGER_PATH = '/tmp/{}.log'.format(_DRIVER_LOGGER_NAME)
     _DRIVER_LOGGER_LEVEL = 'ERROR'
 
+    _DEFAULT_CONFIG_EXT = '.json'
+
     _ERROR_LOG_START = print_console_header('Error Message Start', '=')
     _ERROR_LOG_END = print_console_header('Error Message End', '=')
 
     def __init__(self, config, config_dir):
         self._config_dir = config_dir
+        self._config_ext = config.setdefault('config_ext',
+                                             self._DEFAULT_CONFIG_EXT)
 
         # Create logger instance
         log_path = config.setdefault('log_file', self._DRIVER_LOGGER_PATH)

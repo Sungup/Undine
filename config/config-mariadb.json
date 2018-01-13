@@ -11,10 +11,20 @@
     "log_level": "info"
   },
   "driver": {
-    "type": "sqlite",
+    "type": "mariadb",
     "config_ext": ".json",
     "log_file": "tmp/temp/driver.log",
     "log_level": "info",
-    "db_file": "example/sqlite3/example.sqlite3"
+    "host": "localhost",
+    "database": "undine",
+    "user": "undine",
+    "password": "password"
+  },
+  "rabbitmq": {
+    "host": "localhost",
+    "vhost": "undine",
+    "queue": "task",
+    "user": "undine",
+    "password": "password"
   }
 }
