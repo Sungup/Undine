@@ -35,9 +35,9 @@ class NetworkDriverBase(DriverBase):
         for frame, _, body in self._channel.consume(queue=self._queue):
             self._channel.basic_ack(frame.delivery_tag)
 
-            return self.task(json.loads(body)['tid'])
+            return self._task(json.loads(body)['tid'])
 
-    def task(self, _tid):
+    def _task(self, _tid):
         raise UndineException('This method is the abstract method of preempt')
 
     def wait_others(self):

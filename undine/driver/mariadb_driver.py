@@ -84,7 +84,7 @@ class MariaDbDriver(NetworkDriverBase):
     #
     # Inherited methods
     #
-    def task(self, tid):
+    def _task(self, tid):
         row = self._select_a_tuple(self._QUERY['task'], (tid, ))
 
         return TaskInfo(tid=row[0], cid=row[1], iid=row[2], wid=row[3])
