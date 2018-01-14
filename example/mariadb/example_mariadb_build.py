@@ -1,199 +1,137 @@
+from argparse import ArgumentParser
+from collections import namedtuple
+from undine.client.mariadb_client import MariaDbClient
+from undine.database.mariadb import MariaDbConnector
+from undine.database.rabbitmq import RabbitMQConnector
+
+import itertools
 import json
-import pika
-import uuid
-import mysql.connector as mariadb
 
-#
-# Global environment
-#
 
-TASK_CONFIG_FILE = '../json/task-config.json'
-TASK_INPUT_FILE = '../json/task-inputs.json'
-SYSTEM_CONFIG_FILE = '../../config/config-json.json'
-
-MARIA_DB_USER = 'undine'
-MARIA_DB_PASSWD = 'password'
-MARIA_DB_HOST = 'localhost'
-MARIA_DB_NAME = 'undine'
-
-RABBIT_MQ_USER = 'undine'
-RABBIT_MQ_PASSWD = 'password'
-RABBIT_MQ_HOST = 'localhost'
-RABBIT_MQ_VHOST = 'undine'
-RABBIT_MQ_QUEUE = 'task'
-
-#
-# Queries
-#
-
-# 1. DB Create Queries
-SQL_DB_CREATION = {
-    'state_type': '''CREATE TABLE IF NOT EXISTS state_type
-                     (state CHAR(1) PRIMARY KEY NOT NULL, name TEXT)''',
-    'config': '''CREATE TABLE IF NOT EXISTS config
-                 (cid BINARY(16) PRIMARY KEY, name TEXT, config TEXT,
-                  issued DATETIME DEFAULT CURRENT_TIMESTAMP)''',
-    'input': '''CREATE TABLE IF NOT EXISTS input
-                (iid BINARY(16) PRIMARY KEY, name TEXT, items TEXT,
-                 issued DATETIME DEFAULT CURRENT_TIMESTAMP)''',
-    'worker': '''CREATE TABLE IF NOT EXISTS worker
-                 (wid BINARY(16) PRIMARY KEY, name TEXT, command TEXT,
-                  arguments TEXT, worker_dir TEXT,
-                  issued DATETIME DEFAULT CURRENT_TIMESTAMP)''',
-    'task': '''CREATE TABLE IF NOT EXISTS task
-               (tid BINARY(16) PRIMARY KEY, name TEXT,
-                cid BINARY(16) NOT NULL REFERENCES config(cid),
-                iid BINARY(16) NOT NULL REFERENCES input(iid),
-                wid BINARY(16) NOT NULL REFERENCES worker(wid),
-                issued DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated DATETIME ON UPDATE CURRENT_TIMESTAMP,
-                state CHAR(1) NOT NULL DEFAULT('R')
-                    REFERENCES state_type(state))''',
-    'result': '''CREATE TABLE IF NOT EXISTS result
-                 (tid BINARY(16) NOT NULL PRIMARY KEY REFERENCES task(tid),
-                  reported DATETIME DEFAULT CURRENT_TIMESTAMP,
-                  content TEXT)''',
-    'error': '''CREATE TABLE IF NOT EXISTS error
-                (tid BINARY(16) NOT NULL PRIMARY KEY REFERENCES task(tid),
-                 informed DATETIME DEFAULT CURRENT_TIMESTAMP,
-                 message TEXT)'''
-}
-
-# 2. state_type initialize query
-SQL_STATE_ITEMS_INSERTION = 'INSERT INTO state_type VALUES (%s, %s)'
-
-STATE_ITEMS = [('R', 'ready'), ('I', 'issued'), ('D', 'done'),
-               ('C', 'canceled'), ('F', 'failed')]
-
-# 3. Each tables insertion query
-SQL_CONFIG_INSERTION = '''INSERT INTO config(cid, name, config)
-                          VALUES (UNHEX(%(cid)s), %(name)s, %(config)s)'''
-SQL_INPUT_INSERTION = '''INSERT INTO input(iid, name, items)
-                         VALUES (UNHEX(%(iid)s), %(name)s, %(items)s)'''
-SQL_WORKER_INSERTION = '''INSERT INTO worker(wid, name, command,
-                                             arguments, worker_dir)
-                          VALUES (UNHEX(%(wid)s), %(name)s, %(command)s,
-                                  %(arguments)s, %(worker_dir)s)'''
-SQL_TASK_INSERTION = '''INSERT INTO task(tid, name, cid, iid, wid)
-                        VALUES (UNHEX(%(tid)s), %(name)s,
-                                UNHEX(%(cid)s), UNHEX(%(iid)s),
-                                UNHEX(%(wid)s))'''
-
-#
-# Connect into sqlite3 file
-#
-conn_ = mariadb.connect(host=MARIA_DB_HOST,
-                        user=MARIA_DB_USER,
-                        password=MARIA_DB_PASSWD,
-                        database=MARIA_DB_NAME)
-
-cursor_ = conn_.cursor()
-
-#
-# Connect into RabbitMQ
-#
-rb_credential_ = pika.PlainCredentials(RABBIT_MQ_USER, RABBIT_MQ_PASSWD)
-rb_parameter_ = pika.ConnectionParameters(host=RABBIT_MQ_HOST,
-                                          virtual_host=RABBIT_MQ_VHOST,
-                                          credentials=rb_credential_)
-rb_conn_ = pika.BlockingConnection(rb_parameter_)
-
-rb_channel_ = rb_conn_.channel()
-rb_property_ = pika.BasicProperties(delivery_mode = 2)
-
-#
-# Create database
-#
-for table_name, query in SQL_DB_CREATION.items():
-    cursor_.execute('DROP TABLE IF EXISTS {}'.format(table_name))
-    cursor_.execute(query)
-
-cursor_.executemany(SQL_STATE_ITEMS_INSERTION, STATE_ITEMS)
-
-rb_channel_.queue_delete(queue=RABBIT_MQ_QUEUE)
-rb_channel_.queue_declare(queue=RABBIT_MQ_QUEUE, durable=True)
-
-#
-# Insert worker
-#
-w_config_ = json.load(open(SYSTEM_CONFIG_FILE, 'r'))['driver']
-
-w_item_ = {
-    'wid': str(uuid.uuid4()).replace('-', ''),
-    'name': 'worker1',
-    'command': w_config_['worker_command'],
-    'arguments': w_config_['worker_arguments'],
-    'worker_dir': w_config_['worker_dir']
-}
-
-cursor_.execute(SQL_WORKER_INSERTION, w_item_)
-
-#
-# Insert configs
-#
-c_config_ = json.load(open(TASK_CONFIG_FILE, 'r'))
-c_info_ = dict()
-
-for name, content in c_config_.items():
-    cid = str(uuid.uuid4()).replace('-', '')
-    c_item_ = {
-        'cid': cid,
-        'name': name,
-        'config': json.dumps(content)
+def db_build(rabbitmq_config, mariadb_config):
+    build_query = {
+        'state_type': '''CREATE TABLE IF NOT EXISTS state_type
+                         (state CHAR(1) PRIMARY KEY NOT NULL, name TEXT)''',
+        'config': '''CREATE TABLE IF NOT EXISTS config
+                     (cid BINARY(16) PRIMARY KEY, name TEXT, config TEXT,
+                      issued DATETIME DEFAULT CURRENT_TIMESTAMP)''',
+        'input': '''CREATE TABLE IF NOT EXISTS input
+                    (iid BINARY(16) PRIMARY KEY, name TEXT, items TEXT,
+                     issued DATETIME DEFAULT CURRENT_TIMESTAMP)''',
+        'worker': '''CREATE TABLE IF NOT EXISTS worker
+                     (wid BINARY(16) PRIMARY KEY, name TEXT, command TEXT,
+                      arguments TEXT, worker_dir TEXT,
+                      issued DATETIME DEFAULT CURRENT_TIMESTAMP)''',
+        'task': '''CREATE TABLE IF NOT EXISTS task
+                   (tid BINARY(16) PRIMARY KEY, name TEXT,
+                    cid BINARY(16) NOT NULL REFERENCES config(cid),
+                    iid BINARY(16) NOT NULL REFERENCES input(iid),
+                    wid BINARY(16) NOT NULL REFERENCES worker(wid),
+                    issued DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated DATETIME ON UPDATE CURRENT_TIMESTAMP,
+                    state CHAR(1) NOT NULL DEFAULT('R')
+                        REFERENCES state_type(state))''',
+        'result': '''CREATE TABLE IF NOT EXISTS result
+                     (tid BINARY(16) NOT NULL PRIMARY KEY REFERENCES task(tid),
+                      reported DATETIME DEFAULT CURRENT_TIMESTAMP,
+                      content TEXT)''',
+        'error': '''CREATE TABLE IF NOT EXISTS error
+                    (tid BINARY(16) NOT NULL PRIMARY KEY REFERENCES task(tid),
+                     informed DATETIME DEFAULT CURRENT_TIMESTAMP,
+                     message TEXT)'''
     }
 
-    cursor_.execute(SQL_CONFIG_INSERTION, c_item_)
-    c_info_[cid] = name
+    state_insertion = 'INSERT INTO state_type VALUES (%s, %s)'
 
-#
-# Insert inputs
-#
-i_config_ = json.load(open(TASK_INPUT_FILE, 'r'))
-i_info_ = dict()
+    state_items = [('R', 'ready'), ('I', 'issued'), ('D', 'done'),
+                   ('C', 'canceled'), ('F', 'failed')]
 
-for name, items in i_config_.items():
-    iid = str(uuid.uuid4()).replace('-', '')
-    i_item_ = {
-        'iid': iid,
-        'name': name,
-        'items': ','.join(items)
+    # 0. Connect to server
+    #
+    # But, rabbitmq just call constructor to rebuild the queue
+
+    mariadb = MariaDbConnector(mariadb_config)
+    _ = RabbitMQConnector(rabbitmq_config, consumer=False, rebuild=True)
+
+    queries = list()
+    for name, query in build_query.items():
+        queries.append(mariadb.sql_item('DROP TABLE IF EXISTS {}'.format(name)))
+        queries.append(mariadb.sql_item(query))
+
+    queries.extend([mariadb.sql_item(state_insertion, item)
+                    for item in state_items])
+
+    mariadb.execute_multiple_dml(queries)
+
+
+def data_filling(rabbitmq_config, mariadb_config):
+    config_info = '../json/task-config.json'
+    input_info = '../json/task-inputs.json'
+    worker_info = '../../config/config-json.json'
+
+    # 0. Connect to server
+    client = MariaDbClient(rabbitmq_config, mariadb_config)
+
+    # 1. Insert worker
+    worker = json.load(open(worker_info, 'r'))['driver']
+
+    wid = client.publish_worker(name='worker1',
+                                command=worker['worker_command'],
+                                arguments=worker['worker_arguments'],
+                                worker_dir=worker['worker_dir'])
+
+    # 2. Insert config
+    config_items = dict()
+
+    for name, content in json.load(open(config_info, 'r')).items():
+        config_items[client.publish_config(name, content)] = name
+
+    # 3. Insert inputs
+    input_items = dict()
+
+    for name, items in json.load(open(input_info, 'r')).items():
+        input_items[client.publish_input(name, items)] = name
+
+    # 4. Insert tasks
+    KeyMap = namedtuple('KeyMap', ['config', 'input'])
+
+    for item in [KeyMap(*value)
+                 for value in itertools.product(config_items, input_items)]:
+        client.publish_task(name='{0}-{1}'.format(config_items[item.config],
+                                                  input_items[item.input]),
+                            cid=item.config, iid=item.input, wid=wid)
+
+
+if __name__ == '__main__':
+    _mariadb_config = {
+        'host': 'localhost',
+        'database': 'undine',
+        'user': 'undine',
+        'password': 'password'
     }
 
-    cursor_.execute(SQL_INPUT_INSERTION, i_item_)
-    i_info_[iid] = name
+    _rabbitmq_config = {
+        'host': 'localhost',
+        'vhost': 'undine',
+        'queue': 'task',
+        'user': 'undine',
+        'password': 'password'
+    }
 
-#
-# Insert tasks
-#
-for c_cid_, c_name_ in c_info_.items():
-    for i_iid_, i_name_ in i_info_.items():
-        t_item_ = {
-            'tid': str(uuid.uuid4()).replace('-', ''),
-            'name': '{}-{}'.format(c_name_, i_name_),
-            'cid': c_cid_,
-            'iid': i_iid_,
-            'wid': w_item_['wid']
-        }
+    # 1. Parse program arguments
+    parser = ArgumentParser(description='MariaDB example builder')
 
-        cursor_.execute(SQL_TASK_INSERTION, t_item_)
+    parser.add_argument('-b', '--build', action='store_false',
+                        dest='build', default=True, help="Don't Build tables")
 
-        rb_channel_.basic_publish(exchange= '',
-                                  routing_key=RABBIT_MQ_QUEUE,
-                                  body=json.dumps(t_item_),
-                                  properties=rb_property_)
+    parser.add_argument('-f', '--fill', action='store_true',
+                        dest='fill', default=False, help='Filling tables')
 
-#
-# Check
-#
-cursor_.execute("SELECT COUNT(tid) FROM task WHERE state = 'R'")
-result = cursor_.fetchone()
+    options = parser.parse_args()
 
-print(result[0])
+    # 2. Run each items
+    if options.build:
+        db_build(_rabbitmq_config, _mariadb_config)
 
-#
-# Commit and Disconnect
-#
-conn_.commit()
-conn_.close()
-
-rb_conn_.close()
+    if options.fill:
+        data_filling(_rabbitmq_config, _mariadb_config)
