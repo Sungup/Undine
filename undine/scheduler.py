@@ -1,5 +1,6 @@
 from multiprocessing import Queue
 from threading import Semaphore, Thread, Lock
+from undine.database.rabbitmq import RabbitMQRpcServer
 from undine.utils.system import System
 
 import subprocess
@@ -35,6 +36,24 @@ class TaskThread:
         return self._state == 0
 
 
+class SchedulerState:
+    def __init__(self):
+        self._lock = Lock()
+        self._on_the_fly = set()
+
+    def query(self, cmd):
+        with self._lock:
+            print(cmd)
+
+    def add(self, tid):
+        with self._lock:
+            self._on_the_fly.add(tid)
+
+    def remove(self, tid):
+        with self._lock:
+            self._on_the_fly.remove(tid)
+
+
 class TaskScheduler:
     _SCHEDULER_LOGGER_NAME = 'undine-scheduler'
     _SCHEDULER_LOGGER_PATH = '/tmp/{}.log'.format(_SCHEDULER_LOGGER_NAME)
@@ -47,7 +66,7 @@ class TaskScheduler:
         else:
             return "tid({1}) {0}".format(name, task.tid)
 
-    def __init__(self, manager, config, _rpc_queue):
+    def __init__(self, manager, config, rpc_queue):
         system_cpu = System.cpu_cores() - 1
         config_cpu = int(config.setdefault('max_cpu', '0'))
 
@@ -55,9 +74,14 @@ class TaskScheduler:
         self._manager = manager
         self._pool = Semaphore(self._workers)
 
-        # Manage the On-The-Fly task lists
-        self._lock = Lock()
-        self._on_the_fly = set()
+        # Initialize SchedulerState
+        self._state = SchedulerState()
+
+        # Message queue initialize
+        if rpc_queue:
+            rpc_name = 'rpc-{}'.format(System.host_info().ipv4)
+            self._rpc = RabbitMQRpcServer(rpc_queue, rpc_name,
+                                          lambda body: self._state.query(body))
 
         # Create logger instance
         log_path = config.setdefault('log_file', self._SCHEDULER_LOGGER_PATH)
@@ -101,8 +125,7 @@ class TaskScheduler:
         # thread = Thread(target=TaskScheduler._procedure, args=(self, task))
         # ==================================================
 
-        with self._lock:
-            self._on_the_fly.add(task.tid)
+        self._state.add(task.tid)
 
         thread.start()
 
@@ -126,8 +149,7 @@ class TaskScheduler:
             task.fail(thread.error_message)
             self._logger.info(self._log_string("Task fail", task))
 
-        with self._lock:
-            self._on_the_fly.remove(task.tid)
+        self._state.remove(task.tid)
 
         self._manager.task_complete(task)
 

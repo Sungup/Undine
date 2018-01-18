@@ -2,7 +2,7 @@ from collections import namedtuple
 from argparse import ArgumentParser
 from undine.driver.driver_factory import TaskDriverFactory
 from undine.utils.exception import UndineException
-from undine.process import TaskScheduler
+from undine.scheduler import TaskScheduler
 from undine.task import Task
 
 import os
