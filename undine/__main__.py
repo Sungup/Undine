@@ -56,15 +56,18 @@ class TaskManager:
         if 'driver' not in config:
             raise UndineException(self._DRIVER_ERR_MESSAGE)
 
-        rabbitmq = config.setdefault('rabbitmq', None)
+        rpc_queue = config.setdefault('rpc_queue', None)
+        task_queue = config.setdefault('task_queue', None)
+        scheduler = config.setdefault('scheduler', dict())
         config_dir = self._config['config_dir']
 
         self._driver = TaskDriverFactory.create(config=config['driver'],
                                                 config_dir=config_dir,
-                                                rabbitmq=rabbitmq)
+                                                task_queue =task_queue)
 
-        self._scheduler = TaskScheduler(self,
-                                        config.setdefault('scheduler', dict()))
+        self._scheduler = TaskScheduler(manager=self,
+                                        config=scheduler,
+                                        rpc_queue=rpc_queue)
 
     def _default_opts(self, config):
         return dict([(k, config.setdefault(k, v))

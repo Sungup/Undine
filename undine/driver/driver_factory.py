@@ -21,13 +21,13 @@ class TaskDriverFactory:
     }
 
     @staticmethod
-    def create(config, config_dir, rabbitmq=None):
+    def create(config, config_dir, task_queue=None):
         type_ = config.setdefault('type', 'Invalid')
 
         if type_ in TaskDriverFactory._STAND_ALONE:
             return TaskDriverFactory._STAND_ALONE[type_](config, config_dir)
         elif type_ in TaskDriverFactory._ONLINE:
-            return TaskDriverFactory._ONLINE[type_](rabbitmq,
+            return TaskDriverFactory._ONLINE[type_](task_queue,
                                                     config, config_dir)
         else:
             raise UndineException(TaskDriverFactory._INVALID_TYPE.format(type_))

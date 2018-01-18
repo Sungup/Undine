@@ -1,5 +1,5 @@
 from multiprocessing import Queue
-from threading import Semaphore, Thread
+from threading import Semaphore, Thread, Lock
 from undine.utils.system import System
 
 import subprocess
@@ -47,13 +47,17 @@ class TaskScheduler:
         else:
             return "tid({1}) {0}".format(name, task.tid)
 
-    def __init__(self, manager, config):
+    def __init__(self, manager, config, _rpc_queue):
         system_cpu = System.cpu_cores() - 1
         config_cpu = int(config.setdefault('max_cpu', '0'))
 
         self._workers = max(system_cpu, config_cpu)
         self._manager = manager
         self._pool = Semaphore(self._workers)
+
+        # Manage the On-The-Fly task lists
+        self._lock = Lock()
+        self._on_the_fly = set()
 
         # Create logger instance
         log_path = config.setdefault('log_file', self._SCHEDULER_LOGGER_PATH)
@@ -97,6 +101,9 @@ class TaskScheduler:
         # thread = Thread(target=TaskScheduler._procedure, args=(self, task))
         # ==================================================
 
+        with self._lock:
+            self._on_the_fly.add(task.tid)
+
         thread.start()
 
     # ==================================================
@@ -118,6 +125,9 @@ class TaskScheduler:
         else:
             task.fail(thread.error_message)
             self._logger.info(self._log_string("Task fail", task))
+
+        with self._lock:
+            self._on_the_fly.remove(task.tid)
 
         self._manager.task_complete(task)
 
