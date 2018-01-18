@@ -29,14 +29,16 @@ def db_build(rabbitmq_config, mariadb_config):
                     wid BINARY(16) NOT NULL REFERENCES worker(wid),
                     issued DATETIME DEFAULT CURRENT_TIMESTAMP,
                     updated DATETIME ON UPDATE CURRENT_TIMESTAMP,
+                    host VARCHAR(255),
+                    ip INT UNSIGNED,
                     state CHAR(1) NOT NULL DEFAULT('R')
                         REFERENCES state_type(state))''',
         'result': '''CREATE TABLE IF NOT EXISTS result
-                     (tid BINARY(16) NOT NULL PRIMARY KEY REFERENCES task(tid),
+                     (tid BINARY(16) NOT NULL REFERENCES task(tid),
                       reported DATETIME DEFAULT CURRENT_TIMESTAMP,
                       content TEXT)''',
         'error': '''CREATE TABLE IF NOT EXISTS error
-                    (tid BINARY(16) NOT NULL PRIMARY KEY REFERENCES task(tid),
+                    (tid BINARY(16) NOT NULL REFERENCES task(tid),
                      informed DATETIME DEFAULT CURRENT_TIMESTAMP,
                      message TEXT)'''
     }

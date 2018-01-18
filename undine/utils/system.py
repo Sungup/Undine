@@ -1,24 +1,13 @@
 from __future__ import print_function
+from collections import namedtuple
 
 import multiprocessing
 import platform
-import subprocess
+import socket
 import sys
 
 
 class System:
-    _MACOS_DQ_QUERY = (('route', '-n', 'get', 'default'),
-                       ('awk', '/gateway/ { print $2 }'))
-
-    _LINUX_GW_QUERY = (('ip', 'route', 'show', 'default'),
-                       ('awk', '/default/ { print $3 }'))
-
-    '''
-    _WINDOW_GW_QUERY = '@for /f "token=3" %j in ' \
-                            '(\'route print ^|findstr "\\<0.0.0.0\\>"\') ' \
-                            'do @echo %j'
-    '''
-
     @staticmethod
     def is_window():
         return platform.system() == 'Windows'
@@ -36,24 +25,11 @@ class System:
         return multiprocessing.cpu_count()
 
     @staticmethod
-    def default_gateway():
-        # Select system dependent gw query string
-        if System.is_window():
-            raise Exception('Currently windows platform not in support')
-        elif System.is_mac():
-            query = System._MACOS_DQ_QUERY
-        else:
-            query = System._LINUX_GW_QUERY
+    def host_info():
+        HostInfo = namedtuple('HostInfo', ['name', 'ipv4'])
 
-        # Query the network device
-        net_query = subprocess.Popen(query[0], stdout=subprocess.PIPE)
-
-        # After processing to grepping the default gw address
-        output = subprocess.check_output(query[1], stdin=net_query.stdout)
-
-        net_query.wait()
-
-        return output.strip()
+        name = socket.gethostname()
+        return HostInfo(name, socket.gethostbyname(name))
 
 
 def eprint(*args, **kwargs):

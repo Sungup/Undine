@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+- Add host information field for network_driver_base and its children
+
 ## [v0.0.4] - 2018.01.14
 
 ### Added
