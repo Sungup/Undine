@@ -27,7 +27,7 @@
     "user": "undine",
     "password": "password"
   },
-  "rpc_queue": {
+  "rpc": {
     "host": "localhost",
     "vhost": "undine",
     "user": "undine",

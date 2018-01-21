@@ -1,6 +1,6 @@
+from datetime import datetime
 from multiprocessing import Queue
 from threading import Semaphore, Thread, Lock
-from undine.database.rabbitmq import RabbitMQRpcServer
 from undine.utils.system import System
 
 import subprocess
@@ -36,22 +36,28 @@ class TaskThread:
         return self._state == 0
 
 
-class SchedulerState:
-    def __init__(self):
+class _SchedulerStats:
+    def __init__(self, worker_count):
+        self._worker_count = worker_count
         self._lock = Lock()
-        self._on_the_fly = set()
+        self._on_the_fly = dict()
 
-    def query(self, cmd):
+    def query(self):
         with self._lock:
-            print(cmd)
+            run = len(self._on_the_fly)
+
+            return {'run_workers': run,
+                    'utilization': run / self._worker_count * 100.0,
+                    'list': [{'id': task, 'time': str(datetime.now() - time)}
+                             for task, time in self._on_the_fly.items()]}
 
     def add(self, tid):
         with self._lock:
-            self._on_the_fly.add(tid)
+            self._on_the_fly[tid] = datetime.now()
 
     def remove(self, tid):
         with self._lock:
-            self._on_the_fly.remove(tid)
+            self._on_the_fly.pop(tid, None)
 
 
 class TaskScheduler:
@@ -66,7 +72,7 @@ class TaskScheduler:
         else:
             return "tid({1}) {0}".format(name, task.tid)
 
-    def __init__(self, manager, config, rpc_queue):
+    def __init__(self, manager, config):
         system_cpu = System.cpu_cores() - 1
         config_cpu = int(config.setdefault('max_cpu', '0'))
 
@@ -75,13 +81,7 @@ class TaskScheduler:
         self._pool = Semaphore(self._workers)
 
         # Initialize SchedulerState
-        self._state = SchedulerState()
-
-        # Message queue initialize
-        if rpc_queue:
-            rpc_name = 'rpc-{}'.format(System.host_info().ipv4)
-            self._rpc = RabbitMQRpcServer(rpc_queue, rpc_name,
-                                          lambda body: self._state.query(body))
+        self._state = _SchedulerStats(self._workers)
 
         # Create logger instance
         log_path = config.setdefault('log_file', self._SCHEDULER_LOGGER_PATH)
@@ -99,6 +99,10 @@ class TaskScheduler:
             self._ticket.put(thread_id)
             self._thread.append(None)
         # ==================================================
+
+    @property
+    def max_cpu(self):
+        return self._workers
 
     def wait_all(self):
         # Get all semaphore pool
@@ -128,6 +132,9 @@ class TaskScheduler:
         self._state.add(task.tid)
 
         thread.start()
+
+    def stats_procedure(self):
+        return self._state.query()
 
     # ==================================================
     # TODO Check thread table is useful.

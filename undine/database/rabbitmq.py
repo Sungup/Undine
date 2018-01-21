@@ -1,5 +1,7 @@
+from threading import Thread
 from undine.utils.exception import UndineException
 
+import json
 import pika
 import uuid
 
@@ -84,15 +86,30 @@ class RabbitMQConnector(_RabbitMQConnector):
 
 class RabbitMQRpcServer(_RabbitMQConnector):
     def __init__(self, config, queue, callback):
-        _RabbitMQConnector.__init__(self, config, queue=queue, durable=False)
+        _RabbitMQConnector.__init__(self, config,
+                                    queue=queue,
+                                    rebuild=True,
+                                    durable=False)
 
         self._return_to = callback
 
         self.channel.basic_qos(prefetch_count=1)
         self.channel.basic_consume(self._callback, queue=queue)
 
+        self._thread = Thread(target=lambda: self._channel.start_consuming())
+
+    def __del__(self):
+        # Stop consuming and wait the consuming thread has been done
+        self.channel.stop_consuming()
+
+        self._thread.join()
+
+        # Remove the rpc queue from rabbitmq server
+        self.channel.queue_delete(self._queue)
+
     def _callback(self, channel, method, properties, body):
-        response = str(self._return_to(body))
+        # TODO add exception handling
+        response = json.dumps(self._return_to(json.loads(body)['command']))
 
         props = pika.BasicProperties(correlation_id=properties.correlation_id)
 
@@ -104,7 +121,10 @@ class RabbitMQRpcServer(_RabbitMQConnector):
         channel.basic_ack(delivery_tag=method.delivery_tag)
 
     def start(self):
-        self.channel.start_consuming()
+        self._thread.start()
+
+    def stop(self):
+        self.channel.stop_consuming()
 
 
 class RabbitMQRpcClient(_RabbitMQConnector):
@@ -123,6 +143,7 @@ class RabbitMQRpcClient(_RabbitMQConnector):
             self._response_body = body
 
     def call(self, message):
+        # TODO Add timeout feature
         self._response_body = None
         self._correlation_id = str(uuid.uuid4())
 
@@ -132,7 +153,7 @@ class RabbitMQRpcClient(_RabbitMQConnector):
         self.channel.basic_publish(exchange='',
                                    routing_key=self._rpc,
                                    properties=props,
-                                   body=str(message))
+                                   body=json.dumps({'command': message}))
 
         while self._response_body is None:
             self.process_data_events()
