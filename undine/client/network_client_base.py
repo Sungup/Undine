@@ -6,11 +6,11 @@ import json
 
 
 class NetworkClientBase(ClientBase):
-    def __init__(self, rabbitmq):
-        if rabbitmq is None:
-            raise UndineException('Missing RabbitMQ option field (rabbitmq)')
+    def __init__(self, task_queue):
+        if task_queue is None:
+            raise UndineException('Missing RabbitMQ option field (task_queue)')
 
-        self._queue = RabbitMQConnector(rabbitmq, consumer=False)
+        self._queue = RabbitMQConnector(task_queue, consumer=False)
 
     #
     # Public methods

@@ -10,13 +10,13 @@ class NetworkDriverBase(DriverBase):
     #
     # Constructor & Destructor
     #
-    def __init__(self, rabbitmq, config, config_dir):
+    def __init__(self, task_queue, config, config_dir):
         DriverBase.__init__(self, config, config_dir)
 
-        if rabbitmq is None:
-            raise UndineException('Missing RabbitMQ option field (rabbitmq)')
+        if task_queue is None:
+            raise UndineException('Missing RabbitMQ option field (task_queue)')
 
-        self._queue = RabbitMQConnector(rabbitmq)
+        self._queue = RabbitMQConnector(task_queue)
         self._host = System.host_info()
 
     #

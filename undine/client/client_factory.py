@@ -1,4 +1,4 @@
 class ClientFactory:
     @staticmethod
-    def create(_rabbitmq, _config):
+    def create(_task_queue, _config):
         return None

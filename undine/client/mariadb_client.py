@@ -24,8 +24,8 @@ class MariaDbClient(NetworkClientBase):
         '''
     }
 
-    def __init__(self, rabbitmq, config):
-        NetworkClientBase.__init__(self, rabbitmq)
+    def __init__(self, task_queue, config):
+        NetworkClientBase.__init__(self, task_queue)
 
         self._mariadb = MariaDbConnector(config)
 

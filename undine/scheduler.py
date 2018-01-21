@@ -1,5 +1,6 @@
+from datetime import datetime
 from multiprocessing import Queue
-from threading import Semaphore, Thread
+from threading import Semaphore, Thread, Lock
 from undine.utils.system import System
 
 import subprocess
@@ -35,6 +36,30 @@ class TaskThread:
         return self._state == 0
 
 
+class _SchedulerStats:
+    def __init__(self, worker_count):
+        self._worker_count = worker_count
+        self._lock = Lock()
+        self._on_the_fly = dict()
+
+    def query(self):
+        with self._lock:
+            run = len(self._on_the_fly)
+
+            return {'run_workers': run,
+                    'utilization': run / self._worker_count * 100.0,
+                    'list': [{'id': task, 'time': str(datetime.now() - time)}
+                             for task, time in self._on_the_fly.items()]}
+
+    def add(self, tid):
+        with self._lock:
+            self._on_the_fly[tid] = datetime.now()
+
+    def remove(self, tid):
+        with self._lock:
+            self._on_the_fly.pop(tid, None)
+
+
 class TaskScheduler:
     _SCHEDULER_LOGGER_NAME = 'undine-scheduler'
     _SCHEDULER_LOGGER_PATH = '/tmp/{}.log'.format(_SCHEDULER_LOGGER_NAME)
@@ -55,6 +80,9 @@ class TaskScheduler:
         self._manager = manager
         self._pool = Semaphore(self._workers)
 
+        # Initialize SchedulerState
+        self._state = _SchedulerStats(self._workers)
+
         # Create logger instance
         log_path = config.setdefault('log_file', self._SCHEDULER_LOGGER_PATH)
         log_level = config.setdefault('log_level', self._SCHEDULER_LOGGER_LEVEL)
@@ -71,6 +99,10 @@ class TaskScheduler:
             self._ticket.put(thread_id)
             self._thread.append(None)
         # ==================================================
+
+    @property
+    def max_cpu(self):
+        return self._workers
 
     def wait_all(self):
         # Get all semaphore pool
@@ -97,7 +129,12 @@ class TaskScheduler:
         # thread = Thread(target=TaskScheduler._procedure, args=(self, task))
         # ==================================================
 
+        self._state.add(task.tid)
+
         thread.start()
+
+    def stats_procedure(self):
+        return self._state.query()
 
     # ==================================================
     # TODO Check thread table is useful.
@@ -118,6 +155,8 @@ class TaskScheduler:
         else:
             task.fail(thread.error_message)
             self._logger.info(self._log_string("Task fail", task))
+
+        self._state.remove(task.tid)
 
         self._manager.task_complete(task)
 

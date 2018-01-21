@@ -42,8 +42,8 @@ class MariaDbDriver(NetworkDriverBase):
     #
     # Constructor & Destructor
     #
-    def __init__(self, rabbitmq, config, config_dir):
-        NetworkDriverBase.__init__(self, rabbitmq, config, config_dir)
+    def __init__(self, task_queue, config, config_dir):
+        NetworkDriverBase.__init__(self, task_queue, config, config_dir)
 
         self._mariadb = MariaDbConnector(config)
 

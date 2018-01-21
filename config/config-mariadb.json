@@ -20,10 +20,16 @@
     "user": "undine",
     "password": "password"
   },
-  "rabbitmq": {
+  "task_queue": {
     "host": "localhost",
     "vhost": "undine",
     "queue": "task",
+    "user": "undine",
+    "password": "password"
+  },
+  "rpc": {
+    "host": "localhost",
+    "vhost": "undine",
     "user": "undine",
     "password": "password"
   }
