@@ -4,10 +4,15 @@ from undine.database.mariadb import MariaDbConnector
 
 class MariaDbClient(NetworkClientBase):
     _QUERY = {
+        'mission': '''
+            INSERT INTO mission(mid, name, email, description)
+            VALUES(UNHEX(%(mid)s), %(name)s, %(email)s, %(description)s)
+        ''',
         'task': '''
-            INSERT INTO task(tid, name, cid, iid, wid)
+            INSERT INTO task(tid, name, cid, iid, wid, mid)
             VALUES(UNHEX(%(tid)s), %(name)s,
-                   UNHEX(%(cid)s), UNHEX(%(iid)s), UNHEX(%(wid)s))
+                   UNHEX(%(cid)s), UNHEX(%(iid)s),
+                   UNHEX(%(wid)s), UNHEX(%(mid)s))
         ''',
         'worker': '''
             INSERT INTO worker(wid, name, command, arguments, worker_dir)
@@ -43,3 +48,6 @@ class MariaDbClient(NetworkClientBase):
 
     def _insert_task(self, task):
         self._mariadb.execute_single_dml(self._QUERY['task'], task)
+
+    def _insert_mission(self, mission):
+        self._mariadb.execute_single_dml(self._QUERY['mission'], mission)

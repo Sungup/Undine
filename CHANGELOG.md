@@ -6,9 +6,21 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Add rpc features.
+  - `rpc_daemon.py`: RPC Daemon for undine's internal status.
+  - Add RPC Server/Client of RabbitMQ in `rabbitmq.py`
+  - Add RPC daemon field in configuration file.
+- Add exception handler on TaskManager's loop field to call the destructor while
+  termination.
+
 ### Changed
 
-- Add host information field for network_driver_base and its children
+- Add host information field for network_driver_base and its children.
+  - Redesign the NetworkDriverBase and it's children.
+  - Add `host` and `ip` field in task table in database.
+  - Change the host information utility for `System` class.
+- Rename the field of rabbitmq to task_queue to add new rabbitmq configuration
+  of RPC queue.
 
 ## [v0.0.4] - 2018.01.14
 

@@ -1,13 +1,32 @@
-from undine.utils.exception import UndineException
+from undine.utils.exception import VirtualMethodException
 
 import json
 import uuid
 
 
 class ClientBase:
-    @staticmethod
-    def _get_uuid():
-        return str(uuid.uuid4()).replace('-', '')
+    def __init__(self, publish_task=None):
+        if publish_task:
+            self.publish_task = publish_task
+        else:
+            self.publish_task = self.__default_publish_task
+
+    #
+    # Private methods
+    #
+    def __default_publish_task(self, name, cid, iid, wid):
+        task = {
+            'tid': self._get_uuid(),
+            'name': name,
+            'cid': cid,
+            'iid': iid,
+            'wid': wid
+        }
+
+        # Insert into remote host
+        self._insert_task(task)
+
+        return task['tid']
 
     #
     # Public methods
@@ -47,31 +66,21 @@ class ClientBase:
 
         return config['cid']
 
-    def publish_task(self, name, cid, iid, wid):
-        task = {
-            'tid': self._get_uuid(),
-            'name': name,
-            'cid': cid,
-            'iid': iid,
-            'wid': wid
-        }
-
-        # Insert into remote host
-        self._insert_task(task)
-
-        return task['tid']
-
     #
     # Protected inherited methods
     #
+    @staticmethod
+    def _get_uuid():
+        return str(uuid.uuid4()).replace('-', '')
+
     def _insert_worker(self, _worker):
-        raise UndineException('This method is the abstract method of fetch')
+        raise VirtualMethodException(self.__class__, '_insert_worker')
 
     def _insert_input(self, _inputs):
-        raise UndineException('This method is the abstract method of fetch')
+        raise VirtualMethodException(self.__class__, '_insert_input')
 
     def _insert_config(self, _config):
-        raise UndineException('This method is the abstract method of fetch')
+        raise VirtualMethodException(self.__class__, '_insert_config')
 
     def _insert_task(self, _task):
-        raise UndineException('This method is the abstract method of fetch')
+        raise VirtualMethodException(self.__class__, '_insert_task')

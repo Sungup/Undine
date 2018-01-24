@@ -23,6 +23,8 @@ class SQLiteClient(ClientBase):
     }
 
     def __init__(self, config):
+        ClientBase.__init__(self)
+
         self._sqlite = SQLiteConnector(config)
 
     #

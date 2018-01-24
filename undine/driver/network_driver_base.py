@@ -1,6 +1,6 @@
 from undine.database.rabbitmq import RabbitMQConnector
 from undine.driver.driver_base import DriverBase
-from undine.utils.exception import UndineException
+from undine.utils.exception import UndineException, VirtualMethodException
 from undine.utils.system import System
 
 import json
@@ -29,19 +29,19 @@ class NetworkDriverBase(DriverBase):
     # Protected inherited interface
     #
     def _task(self, _tid):
-        raise UndineException('This method is the abstract method of _task')
+        raise VirtualMethodException(self.__class__, '_task')
 
     def _preempt(self, _info):
-        raise UndineException('This method is the abstract method of _preempt')
+        raise VirtualMethodException(self.__class__, '_preempt')
 
     def _done(self, _info, _content):
-        raise UndineException('This method is the abstract method of _done')
+        raise VirtualMethodException(self.__class__, '_done')
 
     def _cancel(self, _info):
-        raise UndineException('This method is the abstract method of _cancel')
+        raise VirtualMethodException(self.__class__, '_cancel')
 
     def _fail(self, _info, _message):
-        raise UndineException('This method is the abstract method of _fail')
+        raise VirtualMethodException(self.__class__, '_fail')
 
     #
     # Public interface
