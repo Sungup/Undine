@@ -4,6 +4,7 @@ from undine.database.sqlite import SQLiteConnector
 
 import itertools
 import json
+import random
 
 
 def db_build(sqlite_config):
@@ -22,6 +23,7 @@ def db_build(sqlite_config):
                     cid TEXT NOT NULL REFERENCES config(cid),
                     iid TEXT NOT NULL REFERENCES input(iid),
                     wid TEXT NOT NULL REFERENCES worker(wid),
+                    reportable NUMERIC NOT NULL DEFAULT(1),
                     state CHAR(1) NOT NULL DEFAULT('R')
                         REFERENCES state_type(state))''',
         'result': '''CREATE TABLE IF NOT EXISTS result
@@ -86,7 +88,8 @@ def data_filling(sqlite_config):
                  for value in itertools.product(config_items, input_items)]:
         client.publish_task(name='{0}-{1}'.format(config_items[item.config],
                                                   input_items[item.input]),
-                            cid=item.config, iid=item.input, wid=wid)
+                            cid=item.config, iid=item.input, wid=wid,
+                            report=bool(random.randrange(0, 2)))
 
 
 if __name__ == '__main__':

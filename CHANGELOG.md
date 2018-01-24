@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v0.0.5]
+
 ### Added
 
 - Add rpc features.
@@ -12,6 +14,9 @@ All notable changes to this project will be documented in this file.
   - Add RPC daemon field in configuration file.
 - Add exception handler on TaskManager's loop field to call the destructor while
   termination.
+- Add `mission`, the meaning is a set of tasks, in the client sdk side.
+- Add selective report for each task.
+- Add code of conduct at docs directory.
 
 ### Changed
 
@@ -21,6 +26,13 @@ All notable changes to this project will be documented in this file.
   - Change the host information utility for `System` class.
 - Rename the field of rabbitmq to task_queue to add new rabbitmq configuration
   of RPC queue.
+- Add `is_ready()` method to scheduler to prevent the long pending start.
+- Change the method `wait_others()` in DriverBase to `is_ready()`
+- Fixed registering the ghost RPC functions.
+
+### Removed
+
+- Remove `undine/client/client_factory.py`
 
 ## [v0.0.4] - 2018.01.14
 
@@ -124,7 +136,8 @@ All notable changes to this project will be documented in this file.
 - Add basic config file
   - `config/config.json`: Default configure file of Undine.
   
-[Unreleased]: /../compare/v0.0.4...HEAD
+[Unreleased]: /../compare/v0.0.5...HEAD
+[v0.0.5]: /../compare/v0.0.4...v0.0.5
 [v0.0.4]: /../compare/v0.0.3...v0.0.4
 [v0.0.3]: /../compare/v0.0.2...v0.0.3
 [v0.0.2]: /../compare/v0.0.2...v0.0.1

@@ -7,7 +7,7 @@ from undine.utils.exception import UndineException
 
 class SQLiteDriver(DriverBase):
     _QUERY = {
-        'fetch': "SELECT tid, cid, iid, wid FROM task "
+        'fetch': "SELECT tid, cid, iid, wid, reportable FROM task "
                  "WHERE state = 'R' LIMIT 1",
         'config': "SELECT cid, name, config FROM config "
                   "WHERE cid = ?",
@@ -45,7 +45,8 @@ class SQLiteDriver(DriverBase):
     def fetch(self):
         row = self._sqlite.fetch_a_tuple(self._QUERY['fetch'])
 
-        return TaskInfo(tid=row[0], cid=row[1], iid=row[2], wid=row[3])
+        return TaskInfo(tid=row[0], cid=row[1], iid=row[2], wid=row[3],
+                        reportable=bool(row[4]))
 
     def config(self, cid):
         row = self._sqlite.fetch_a_tuple(self._QUERY['config'], (cid, ))
@@ -69,11 +70,13 @@ class SQLiteDriver(DriverBase):
 
         return True
 
-    def done(self, tid, content):
+    def done(self, tid, content, report):
         item = {'tid': tid, 'content': content}
 
-        queries = [self._sqlite.SQLItem(self._QUERY['done'], (tid,)),
-                   self._sqlite.SQLItem(self._QUERY['result'], item)]
+        queries = [self._sqlite.SQLItem(self._QUERY['done'], (tid,))]
+
+        if report:
+            queries.append(self._sqlite.SQLItem(self._QUERY['result'], item))
 
         self._sqlite.execute_multiple_dml(queries)
 
@@ -92,5 +95,5 @@ class SQLiteDriver(DriverBase):
 
         self._error_logging('tid({0})'.format(tid), message)
 
-    def wait_others(self):
+    def is_ready(self):
         return bool(self._sqlite.fetch_a_tuple(self._QUERY['count'])[0])

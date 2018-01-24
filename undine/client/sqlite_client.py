@@ -5,8 +5,8 @@ from undine.database.sqlite import SQLiteConnector
 class SQLiteClient(ClientBase):
     _QUERY = {
         'task': '''
-            INSERT INTO task(tid, name, cid, iid, wid)
-            VALUES(:tid, :name, :cid, :iid, :wid)
+            INSERT INTO task(tid, name, cid, iid, wid, reportable)
+            VALUES(:tid, :name, :cid, :iid, :wid, :reportable)
         ''',
         'worker': '''
             INSERT INTO worker(wid, name, command, arguments, worker_dir)

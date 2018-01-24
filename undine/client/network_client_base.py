@@ -17,20 +17,23 @@ class NetworkClientBase(ClientBase):
     #
     # Private methods
     #
-    def __default_publish_task_with_mid(self, name, cid, iid, wid, mid):
+    def __default_publish_task_with_mid(self, name, cid, iid, wid, mid, report):
         task = {
             'tid': self._get_uuid(),
             'name': name,
             'cid': cid,
             'iid': iid,
             'wid': wid,
-            'mid': mid
+            'mid': mid,
+            'reportable': report
         }
 
         # Insert into remote host
         self._insert_task(task)
 
-        # Insert into rabbitmq task queue
+        # Insert useful task information into rabbitmq task queue
+        del task['name'], task['mid'], task['reportable']
+
         self._queue.publish(json.dumps(task))
 
         return task['tid']

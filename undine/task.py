@@ -19,7 +19,7 @@ class Task:
     _DEFAULT_SUCCESS_MESSAGE = 'Success'
     _DEFAULT_FAIL_MESSAGE = 'Fail'
 
-    def __init__(self, tid, w_info, c_info, i_info, **kwargs):
+    def __init__(self, t_info, w_info, c_info, i_info, **kwargs):
         """
         Parameters
 
@@ -57,16 +57,14 @@ class Task:
         if not isinstance(i_info, info.InputInfo):
             raise UndineException('i_info is not InputInfo')
 
-        self._tid = tid
+        self._task = t_info
         self._worker = w_info
 
         dir_ = kwargs.setdefault('result_dir', '')
         ext_ = kwargs.setdefault('result_ext', '.json')
-        name_ = "{0}-{1}-{2}-{3}".format(tid,
-                                         w_info.wid, c_info.name, i_info.name)
 
         self._config_path = c_info.path
-        self._result_path = Path.gen_file_path(dir_, name_, ext_)
+        self._result_path = Path.gen_file_path(dir_, t_info.tid, ext_)
         self._input_list = i_info.inputs(kwargs.setdefault('input_dir', ''))
 
         # Result container
@@ -84,7 +82,11 @@ class Task:
 
     @property
     def tid(self):
-        return self._tid
+        return self._task.tid
+
+    @property
+    def report(self):
+        return self._task.reportable
 
     @property
     def message(self):

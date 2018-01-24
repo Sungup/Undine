@@ -34,7 +34,7 @@ class NetworkDriverBase(DriverBase):
     def _preempt(self, _info):
         raise VirtualMethodException(self.__class__, '_preempt')
 
-    def _done(self, _info, _content):
+    def _done(self, _info, _content, _report):
         raise VirtualMethodException(self.__class__, '_done')
 
     def _cancel(self, _info):
@@ -52,8 +52,8 @@ class NetworkDriverBase(DriverBase):
     def preempt(self, tid):
         return self._preempt(self._make_params(tid))
 
-    def done(self, tid, content):
-        return self._done(self._make_params(tid), content)
+    def done(self, tid, content, report):
+        return self._done(self._make_params(tid), content, report)
 
     def cancel(self, tid):
         return self._cancel(self._make_params(tid))
@@ -61,5 +61,5 @@ class NetworkDriverBase(DriverBase):
     def fail(self, tid, message):
         return self._fail(self._make_params(tid), message)
 
-    def wait_others(self):
+    def is_ready(self):
         return True
