@@ -9,10 +9,11 @@ class MariaDbClient(NetworkClientBase):
             VALUES(UNHEX(%(mid)s), %(name)s, %(email)s, %(description)s)
         ''',
         'task': '''
-            INSERT INTO task(tid, name, cid, iid, wid, mid)
+            INSERT INTO task(tid, name, cid, iid, wid, mid, reportable)
             VALUES(UNHEX(%(tid)s), %(name)s,
                    UNHEX(%(cid)s), UNHEX(%(iid)s),
-                   UNHEX(%(wid)s), UNHEX(%(mid)s))
+                   UNHEX(%(wid)s), UNHEX(%(mid)s),
+                   %(reportable)s)
         ''',
         'worker': '''
             INSERT INTO worker(wid, name, command, arguments, worker_dir)

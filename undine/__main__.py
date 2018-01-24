@@ -106,7 +106,7 @@ class TaskManager:
         scheduler = self._scheduler
 
         try:
-            while driver.wait_others():
+            while scheduler.is_ready() and driver.is_ready():
                 task = driver.fetch()
 
                 # Notify to driver this task will control this manager
@@ -116,7 +116,7 @@ class TaskManager:
                 worker = driver.worker(task.wid)
                 inputs = driver.inputs(task.iid)
 
-                scheduler.run(Task(task.tid, worker, config, inputs,
+                scheduler.run(Task(task, worker, config, inputs,
                                    **self._config))
 
             # Before terminate, wait all threads
@@ -132,7 +132,7 @@ class TaskManager:
             raise UndineException('Unexpected task object')
 
         if task.is_success:
-            self._driver.done(task.tid, task.result)
+            self._driver.done(task.tid, task.result, task.report)
         else:
             self._driver.fail(task.tid, task.message)
 

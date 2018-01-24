@@ -6,7 +6,7 @@ from undine.information import ConfigInfo, WorkerInfo, InputInfo, TaskInfo
 class MariaDbDriver(NetworkDriverBase):
     _QUERY = {
         'task': '''
-            SELECT HEX(tid), HEX(cid), HEX(iid), HEX(wid)
+            SELECT HEX(tid), HEX(cid), HEX(iid), HEX(wid), reportable
               FROM task 
              WHERE tid = UNHEX(%s)
         ''',
@@ -70,7 +70,8 @@ class MariaDbDriver(NetworkDriverBase):
     def _task(self, tid):
         row = self._mariadb.fetch_a_tuple(self._QUERY['task'], (tid, ))
 
-        return TaskInfo(tid=row[0], cid=row[1], iid=row[2], wid=row[3])
+        return TaskInfo(tid=row[0], cid=row[1], iid=row[2], wid=row[3],
+                        reportable=row[4])
 
     def _preempt(self, info):
         info['state'] = 'I'
@@ -79,12 +80,14 @@ class MariaDbDriver(NetworkDriverBase):
 
         return True
 
-    def _done(self, info, content):
+    def _done(self, info, content, report):
         info['state'] = 'D'
         item = {'tid': info['tid'], 'content': content}
 
-        queries = [self._mariadb.SQLItem(self._QUERY['state'], info),
-                   self._mariadb.SQLItem(self._QUERY['result'], item)]
+        queries = [self._mariadb.SQLItem(self._QUERY['state'], info)]
+
+        if report:
+            queries.append(self._mariadb.SQLItem(self._QUERY['result'], item))
 
         self._mariadb.execute_multiple_dml(queries)
 

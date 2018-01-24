@@ -104,6 +104,12 @@ class TaskScheduler:
     def max_cpu(self):
         return self._workers
 
+    def is_ready(self):
+        self._pool.acquire()
+        self._pool.release()
+
+        return True
+
     def wait_all(self):
         # Get all semaphore pool
         for _ in range(0, self._workers):

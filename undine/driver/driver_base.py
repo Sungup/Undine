@@ -46,7 +46,7 @@ class DriverBase:
     def preempt(self, _tid):
         raise VirtualMethodException(self.__class__, 'preempt')
 
-    def done(self, _tid, _contents):
+    def done(self, _tid, _contents, _report):
         raise VirtualMethodException(self.__class__, 'done')
 
     def cancel(self, _tid):
@@ -55,5 +55,5 @@ class DriverBase:
     def fail(self, _tid, _message):
         raise VirtualMethodException(self.__class__, 'fail')
 
-    def wait_others(self):
+    def is_ready(self):
         raise VirtualMethodException(self.__class__, '_wait_others')

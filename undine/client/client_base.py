@@ -14,13 +14,14 @@ class ClientBase:
     #
     # Private methods
     #
-    def __default_publish_task(self, name, cid, iid, wid):
+    def __default_publish_task(self, name, cid, iid, wid, report):
         task = {
             'tid': self._get_uuid(),
             'name': name,
             'cid': cid,
             'iid': iid,
-            'wid': wid
+            'wid': wid,
+            'reportable': bool(report)
         }
 
         # Insert into remote host

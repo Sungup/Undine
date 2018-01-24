@@ -13,7 +13,8 @@ class _RabbitMQConnector:
     _DEFAULT_PASSWD = 'password'
 
     def __init__(self, config, queue=None,
-                 durable=True, rebuild=False, exclusive=False):
+                 durable=True, rebuild=False, exclusive=False,
+                 auto_delete=False):
         host = config.setdefault('host', self._DEFAULT_HOST)
         vhost = config.setdefault('vhost', self._DEFAULT_VHOST)
         user = config.setdefault('user', self._DEFAULT_USER)
@@ -36,7 +37,8 @@ class _RabbitMQConnector:
             if rebuild:
                 self._channel.queue_delete(queue=self._queue)
 
-            self._channel.queue_declare(queue=self._queue, durable=durable)
+            self._channel.queue_declare(queue=self._queue, durable=durable,
+                                        auto_delete=auto_delete)
 
         else:
             result = self._channel.queue_declare(exclusive=True)
@@ -89,7 +91,8 @@ class RabbitMQRpcServer(_RabbitMQConnector):
         _RabbitMQConnector.__init__(self, config,
                                     queue=queue,
                                     rebuild=True,
-                                    durable=False)
+                                    durable=False,
+                                    auto_delete=True)
 
         self._return_to = callback
 
@@ -103,9 +106,6 @@ class RabbitMQRpcServer(_RabbitMQConnector):
         self.channel.stop_consuming()
 
         self._thread.join()
-
-        # Remove the rpc queue from rabbitmq server
-        self.channel.queue_delete(self._queue)
 
     def _callback(self, channel, method, properties, body):
         # TODO add exception handling

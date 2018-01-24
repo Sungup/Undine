@@ -17,9 +17,10 @@ class RpcDaemon:
     def _call(self, command):
         if command == 'all':
             return {name: func() for name, func in self._callbacks.items()}
+        elif command in self._callbacks:
+            return {command: self._callbacks[command]()}
         else:
-            return {command: self._callbacks.setdefault(command,
-                                                        self._default)()}
+            return {command: self._default()}
 
     def start(self):
         self._rpc.start()

@@ -115,17 +115,21 @@ class WorkerInfo:
 
 
 class TaskInfo:
-    _STRING_FORMAT = "{'tid':{0}, 'cid':{1}, 'iid':{2}, 'wid':{3}}"
+    _STRING_FORMAT = '''
+        {'tid':{0}, 'cid':{1}, 'iid':{2}, 'wid':{3}, 'reportable': {4}}"
+    '''
 
     def __init__(self, **kwargs):
         self._tid = kwargs['tid']
         self._cid = kwargs['cid']
         self._iid = kwargs['iid']
         self._wid = kwargs['wid']
+        self._reportable = bool(kwargs.setdefault('reportable', True))
 
     def __str__(self):
         return self._STRING_FORMAT.format(self._tid, self._cid,
-                                          self._iid, self._wid)
+                                          self._iid, self._wid,
+                                          self._reportable)
 
     @property
     def tid(self):
@@ -142,3 +146,7 @@ class TaskInfo:
     @property
     def wid(self):
         return self._wid
+
+    @property
+    def reportable(self):
+        return self._reportable

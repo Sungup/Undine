@@ -137,7 +137,7 @@ class FileDriver(DriverBase):
 
         return True
 
-    def done(self, tid, contents):
+    def done(self, tid, contents, _report):
         task = self._move_state(tid, 'issued', 'done')
 
         # Keep result in memory currently.
@@ -159,5 +159,5 @@ class FileDriver(DriverBase):
 
         self._error_logging(title, message)
 
-    def wait_others(self):
+    def is_ready(self):
         return bool(self._state['ready'])

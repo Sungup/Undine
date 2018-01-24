@@ -7,6 +7,7 @@ from undine.database.rabbitmq import RabbitMQConnector
 import itertools
 import json
 import names
+import random
 
 
 def db_build(rabbitmq_config, mariadb_config):
@@ -147,7 +148,8 @@ def data_filling(rabbitmq_config, mariadb_config):
                  for value in itertools.product(config_items, input_items)]:
         client.publish_task(name='{0}-{1}'.format(config_items[item.config],
                                                   input_items[item.input]),
-                            cid=item.config, iid=item.input, wid=wid, mid=mid)
+                            cid=item.config, iid=item.input, wid=wid, mid=mid,
+                            report=random.randrange(0, 2))
 
 
 if __name__ == '__main__':
