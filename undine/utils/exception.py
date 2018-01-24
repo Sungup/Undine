@@ -6,3 +6,12 @@ class UndineException(Exception):
         :param _kwargs: Currently not using.
         """
         Exception.__init__(self, *args)
+
+
+class VirtualMethodException(UndineException):
+    __MESSAGE = '{0} method is the virtual method of {1} class.'
+
+    def __init__(self, class_type, method_name):
+        UndineException.__init__(self,
+                                 self.__MESSAGE.format(method_name,
+                                                       class_type.__name__))

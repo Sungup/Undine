@@ -1,4 +1,4 @@
-from undine.utils.exception import UndineException
+from undine.utils.exception import VirtualMethodException
 from undine.utils.system import print_console_header
 
 import undine.utils.logging as logging
@@ -32,29 +32,28 @@ class DriverBase:
                                                          self._ERROR_LOG_END))
 
     def fetch(self):
-        raise UndineException('This method is the abstract method of fetch')
+        raise VirtualMethodException(self.__class__, 'fetch')
 
     def config(self, _cid):
-        raise UndineException('This method is the abstract method of config')
+        raise VirtualMethodException(self.__class__, 'config')
 
     def worker(self, _wid):
-        raise UndineException('This method is the abstract method of worker')
+        raise VirtualMethodException(self.__class__, 'worker')
 
     def inputs(self, _iid):
-        raise UndineException('This method is the abstract method of inputs')
+        raise VirtualMethodException(self.__class__, 'input')
 
     def preempt(self, _tid):
-        raise UndineException('This method is the abstract method of preempt')
+        raise VirtualMethodException(self.__class__, 'preempt')
 
     def done(self, _tid, _contents):
-        raise UndineException('This method is the abstract method of task done')
+        raise VirtualMethodException(self.__class__, 'done')
 
     def cancel(self, _tid):
-        raise UndineException('This method is the abstract method of cancel')
+        raise VirtualMethodException(self.__class__, 'cancel')
 
     def fail(self, _tid, _message):
-        raise UndineException('This method is the abstract method of fail')
+        raise VirtualMethodException(self.__class__, 'fail')
 
     def wait_others(self):
-        raise UndineException('This method is the abstract method for '
-                              'instance termination')
+        raise VirtualMethodException(self.__class__, '_wait_others')
