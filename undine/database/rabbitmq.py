@@ -108,8 +108,12 @@ class RabbitMQRpcServer(_RabbitMQConnector):
         self._thread.join()
 
     def _callback(self, channel, method, properties, body):
+        packet = json.loads(body)
+
         # TODO add exception handling
-        response = json.dumps(self._return_to(json.loads(body)['command']))
+        response = json.dumps(self._return_to(packet['command'],
+                                              *packet['args'],
+                                              **packet['kwargs']))
 
         props = pika.BasicProperties(correlation_id=properties.correlation_id)
 
@@ -142,7 +146,13 @@ class RabbitMQRpcClient(_RabbitMQConnector):
         if self._correlation_id == properties.correlation_id:
             self._response_body = body
 
-    def call(self, message):
+    def call(self, message, *args, **kwargs):
+        packet = {
+            'command': message,
+            'args': args,
+            'kwargs': kwargs
+        }
+
         # TODO Add timeout feature
         self._response_body = None
         self._correlation_id = str(uuid.uuid4())
@@ -153,7 +163,7 @@ class RabbitMQRpcClient(_RabbitMQConnector):
         self.channel.basic_publish(exchange='',
                                    routing_key=self._rpc,
                                    properties=props,
-                                   body=json.dumps({'command': message}))
+                                   body=json.dumps(packet))
 
         while self._response_body is None:
             self.process_data_events()

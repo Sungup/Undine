@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Add `ISSUE_TEMPLATE.md` and `PULL_REQUEST_TEMPLATE.md`
+
+### Changed
+
+- Add multiple argument feature for rabbitmq rpc.
+
 ## [v0.0.5]
 
 ### Added
