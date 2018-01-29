@@ -14,11 +14,11 @@ class RpcDaemon:
     def _default():
         return 'Command is not ready'
 
-    def _call(self, command):
+    def _call(self, command, *args, **kwargs):
         if command == 'all':
             return {name: func() for name, func in self._callbacks.items()}
         elif command in self._callbacks:
-            return {command: self._callbacks[command]()}
+            return {command: self._callbacks[command](*args, **kwargs)}
         else:
             return {command: self._default()}
 

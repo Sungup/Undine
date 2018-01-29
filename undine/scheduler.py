@@ -139,7 +139,8 @@ class TaskScheduler:
 
         thread.start()
 
-    def stats_procedure(self):
+    def stats_procedure(self, *_args, **_kwargs):
+        # Currently args and kwargs not in use.
         return self._state.query()
 
     # ==================================================

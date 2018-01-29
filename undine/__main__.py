@@ -91,7 +91,8 @@ class TaskManager:
 
             self._rpc.start()
 
-    def stats_procedure(self):
+    def stats_procedure(self, *_args, **_kwargs):
+        # Currently args and kwargs not in use.
         info = self._info.copy()
         info['uptime'] = str(datetime.now() - self._start_at)
 
