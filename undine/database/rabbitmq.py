@@ -1,5 +1,6 @@
 from threading import Thread
 from undine.utils.exception import UndineException
+from pika.exceptions import ChannelClosed
 
 import json
 import pika
@@ -12,9 +13,9 @@ class _RabbitMQConnector:
     _DEFAULT_USER = 'undine'
     _DEFAULT_PASSWD = 'password'
 
-    def __init__(self, config, queue=None,
-                 durable=True, rebuild=False, exclusive=False,
-                 auto_delete=False):
+    def __init__(self, config, queue=None, durable=True,
+                 exclusive=False, auto_delete=False,
+                 rebuild=False):
         host = config.setdefault('host', self._DEFAULT_HOST)
         vhost = config.setdefault('vhost', self._DEFAULT_VHOST)
         user = config.setdefault('user', self._DEFAULT_USER)
@@ -145,6 +146,19 @@ class RabbitMQRpcClient(_RabbitMQConnector):
     def _response(self, _ch, _method, properties, body):
         if self._correlation_id == properties.correlation_id:
             self._response_body = body
+
+    def is_ready(self):
+        ready = True
+
+        try:
+            # Try queue_declare to check the rpc queue is ready.
+            self.channel.queue_declare(self._rpc, passive=True)
+
+        except ChannelClosed:
+            ready = False
+            pass
+
+        return ready
 
     def call(self, message, *args, **kwargs):
         packet = {
