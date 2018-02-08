@@ -1,0 +1,15 @@
+{
+  "database": {
+    "type": "mariadb",
+    "host": "localhost",
+    "database": "undine",
+    "user": "undine",
+    "password": "password"
+  },
+  "rpc": {
+    "host": "localhost",
+    "vhost": "undine",
+    "user": "undine",
+    "password": "password"
+  }
+}

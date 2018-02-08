@@ -1,7 +1,7 @@
 from os import makedirs, path
+from undine.core.information import ConfigInfo, WorkerInfo, InputInfo, TaskInfo
 from undine.driver.driver_base import DriverBase
 from undine.utils.exception import UndineException
-from undine.information import ConfigInfo, WorkerInfo, InputInfo, TaskInfo
 
 
 class FileDriver(DriverBase):

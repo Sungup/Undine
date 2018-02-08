@@ -1,5 +1,5 @@
 from collections import namedtuple
-from undine.client.sqlite_client import SQLiteClient
+from undine.api.database.sqlite_client import SQLiteClient
 from undine.database.sqlite import SQLiteConnector
 
 import itertools

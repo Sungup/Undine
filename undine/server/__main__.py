@@ -1,12 +1,12 @@
 from argparse import ArgumentParser
 from collections import namedtuple
 from datetime import datetime
+from undine.core.scheduler import TaskScheduler
+from undine.core.task import Task
 from undine.driver.driver_factory import TaskDriverFactory
 from undine.rpc.rpc_daemon import RpcDaemon
-from undine.scheduler import TaskScheduler
 from undine.utils.exception import UndineException
 from undine.utils.system import System
-from undine.task import Task
 
 import os
 import json

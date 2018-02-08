@@ -1,7 +1,7 @@
 from os import path
+from undine.core.information import ConfigInfo, WorkerInfo, InputInfo, TaskInfo
 from undine.database.sqlite import SQLiteConnector
 from undine.driver.driver_base import DriverBase
-from undine.information import ConfigInfo, WorkerInfo, InputInfo, TaskInfo
 from undine.utils.exception import UndineException
 
 

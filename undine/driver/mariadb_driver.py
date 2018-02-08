@@ -1,6 +1,6 @@
+from undine.core.information import ConfigInfo, WorkerInfo, InputInfo, TaskInfo
 from undine.database.mariadb import MariaDbConnector
 from undine.driver.network_driver_base import NetworkDriverBase
-from undine.information import ConfigInfo, WorkerInfo, InputInfo, TaskInfo
 
 
 class MariaDbDriver(NetworkDriverBase):
