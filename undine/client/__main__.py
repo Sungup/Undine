@@ -1,5 +1,4 @@
 from argparse import ArgumentParser
-from collections import namedtuple
 from undine.utils.exception import UndineException
 
 import json
@@ -7,24 +6,48 @@ import os
 
 
 class ConfigParser:
-    Option = namedtuple('Options',
-                        ['short', 'long', 'dest', 'action', 'meta', 'help',
-                         'required'])
-
-    _OPTIONS = [
-        Option('-c', '--config', 'config_file', 'store', 'PATH',
-               'Config file path', True)
-    ]
-
     @staticmethod
-    def parse(options = _OPTIONS):
-        # TODO Add multi level parser
-        parser = ArgumentParser(description='Undine task manager.')
+    def parse():
+        parser = ArgumentParser(description='Undine client tool.')
 
-        for item in options:
-            parser.add_argument(item.short, item.long, metavar=item.meta,
-                                dest=item.dest, action=item.action,
-                                help=item.help, required=item.required)
+        # Global Argument
+        parser.add_argument('-c', '--config', dest='config_file',
+                            help='Config file path',
+                            default='config/client.json',
+                            action='store', metavar='PATH')
+
+        parser.add_argument('-j', '--json', dest='json',
+                            help='Print json format',
+                            default=False, action='store_true')
+
+        subparsers = parser.add_subparsers(help='commands')
+
+        # Dashboard command
+        dashboard = subparsers.add_parser('dashboard', help='Task dashboard')
+
+        dashboard.add_argument('-t', '--term', dest='term',
+                               help='Dashboard refresh term', default=10,
+                               action='store', metavar='sec')
+
+        # Missions command
+        missions = subparsers.add_parser('missions', help='Query task missions')
+
+        missions.add_argument('-m', '--mid', dest='mid',
+                              help="Mission ID (mid)", action='store')
+
+        # Tasks command
+        tasks = subparsers.add_parser('tasks', help='List-up specific tasks')
+
+        tasks.add_argument('-t', '--tid', dest='tid',
+                           help="Task id (tid)", action='store')
+
+        # Nodes command
+        nodes = subparsers.add_parser('hosts', help='List-up service nodes')
+
+        # Stats command
+        stats = subparsers.add_parser('stats', help='Service node stats')
+
+        # TODO Add additional parser
 
         return parser.parse_args()
 
