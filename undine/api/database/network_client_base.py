@@ -1,4 +1,4 @@
-from undine.client.client_base import ClientBase
+from undine.api.database.client_base import ClientBase
 from undine.database.rabbitmq import RabbitMQConnector
 from undine.utils.exception import UndineException, VirtualMethodException
 

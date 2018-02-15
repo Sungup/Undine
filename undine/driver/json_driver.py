@@ -1,5 +1,5 @@
+from undine.core.information import ConfigInfo, InputInfo
 from undine.driver.file_driver import FileDriver
-from undine.information import ConfigInfo, InputInfo
 
 import json
 
