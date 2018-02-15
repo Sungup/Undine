@@ -37,6 +37,15 @@ class SQLiteConnector:
 
         return row
 
+    def fetch_all_tuples(self, query, params=tuple()):
+        self._lock.acquire()
+
+        rows = self._cursor.execute(query, params).fetchall()
+
+        self._lock.release()
+
+        return rows
+
     def execute_multiple_dml(self, execute_items):
         self._lock.acquire()
 

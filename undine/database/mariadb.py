@@ -43,6 +43,18 @@ class MariaDbConnector:
 
         return row
 
+    def fetch_all_tuples(self, query, params=tuple()):
+        conn = self._pool.get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        cursor.close()
+
+        conn.close()
+
+        return rows
+
     def execute_multiple_dml(self, execute_items):
         conn = self._pool.get_connection()
 

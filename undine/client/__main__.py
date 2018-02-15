@@ -1,11 +1,13 @@
 from argparse import ArgumentParser
 from undine.utils.exception import UndineException
+from undine.client.command.command_factory import CommandFactory
+from undine.client.database.client_factory import ClientFactory
 
 import json
 import os
 
 
-class ConfigParser:
+class UndineClient:
     @staticmethod
     def parse():
         parser = ArgumentParser(description='Undine client tool.')
@@ -20,66 +22,42 @@ class ConfigParser:
                             help='Print json format',
                             default=False, action='store_true')
 
-        subparsers = parser.add_subparsers(help='commands')
-
-        # Dashboard command
-        dashboard = subparsers.add_parser('dashboard', help='Task dashboard')
-
-        dashboard.add_argument('-t', '--term', dest='term',
-                               help='Dashboard refresh term', default=10,
-                               action='store', metavar='sec')
-
-        # Missions command
-        missions = subparsers.add_parser('missions', help='Query task missions')
-
-        missions.add_argument('-m', '--mid', dest='mid',
-                              help="Mission ID (mid)", action='store')
-
-        # Tasks command
-        tasks = subparsers.add_parser('tasks', help='List-up specific tasks')
-
-        tasks.add_argument('-t', '--tid', dest='tid',
-                           help="Task id (tid)", action='store')
-
-        # Nodes command
-        nodes = subparsers.add_parser('hosts', help='List-up service nodes')
-
-        # Stats command
-        stats = subparsers.add_parser('stats', help='Service node stats')
-
-        # TODO Add additional parser
+        CommandFactory.add_subparsers(parser,
+                                      dest='command',
+                                      description='commands')
 
         return parser.parse_args()
 
+    def __init__(self, command, config, connection):
+        if 'database' not in connection:
+            raise UndineException('There is no database connection information')
+
+        self._connector = ClientFactory.create(connection['database'],
+                                               json=config.json, cli=True)
+
+        self._command = CommandFactory.get_command(command, config,
+                                                   self._connector)
+
+    def _run(self):
+        self._command.run()
+
     @staticmethod
-    def load_config():
-        config = ConfigParser.parse()
+    def run():
+        config = UndineClient.parse()
 
         if not os.path.isfile(config.config_file):
             raise UndineException('No such config file at {}.'.format(
                 config.config_file))
 
-        return json.load(open(config.config_file, 'r'))
+        connection = json.load(open(config.config_file, 'r'))
+        command = config.command
 
+        # Remove useless global arguments
+        #  - config_file: already used parsing json config file.
+        del config.config_file
+        del config.command
 
-class UndineClient:
-    def __init__(self, config):
-        if 'database' not in config:
-            raise UndineException('There is no database connection information')
-
-        if 'rpc' not in config:
-            raise UndineException('There is no rpc connection information')
-
-        self.driver = config['database']
-        self.rpc = config['rpc']
-
-    def _run(self):
-        print(str(self.driver))
-        print(str(self.rpc))
-
-    @staticmethod
-    def run():
-        UndineClient(ConfigParser.load_config())._run()
+        UndineClient(command, config, connection)._run()
 
 
 if __name__ == '__main__':

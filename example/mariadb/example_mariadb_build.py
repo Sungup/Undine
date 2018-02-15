@@ -119,7 +119,7 @@ def data_filling(rabbitmq_config, mariadb_config):
     # 1. Insert Mission
     mid = client.publish_mission(names.get_full_name(),
                                  'noreply@example.com',
-                                 'Sample Mission')
+                                 'Sample Mission\n\n Detail descriptions')
 
     # 2. Insert worker
     worker = json.load(open(worker_info, 'r'))['driver']

@@ -31,6 +31,10 @@ class System:
         name = socket.gethostname()
         return HostInfo(name, socket.gethostbyname(name))
 
+    @staticmethod
+    def version():
+        return 'v0.1.0b'
+
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
