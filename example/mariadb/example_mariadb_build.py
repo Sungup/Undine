@@ -67,7 +67,7 @@ def db_build(rabbitmq_config, mariadb_config):
          '''
     }
 
-    create_view = '''
+    dashboard_view = '''
         CREATE OR REPLACE VIEW mission_dashboard AS
         SELECT HEX(m.mid) AS mid, m.name, m.email, m.description,
                COUNT(CASE WHEN t.state = 'R' THEN 1 END) AS ready,
@@ -81,6 +81,16 @@ def db_build(rabbitmq_config, mariadb_config):
          WHERE m.mid = t.mid
          GROUP BY m.mid
          ORDER BY m.issued DESC
+    '''
+
+    task_list_view = '''
+        CREATE OR REPLACE VIEW task_list AS
+        SELECT t.mid, HEX(tid) AS tid, t.name, t.host, INET_NTOA(t.ip) as ip,
+               t.issued, t.updated, s.name AS state, t.reportable,
+               t.cid, t.iid, t.wid
+          FROM task AS t, state_type s
+         WHERE t.state = s.state
+         ORDER BY issued ASC
     '''
 
     state_insertion = 'INSERT INTO state_type VALUES (%s, %s)'
@@ -103,7 +113,8 @@ def db_build(rabbitmq_config, mariadb_config):
     queries.extend([mariadb.sql_item(state_insertion, item)
                     for item in state_items])
 
-    queries.append(mariadb.sql_item(create_view))
+    queries.append(mariadb.sql_item(dashboard_view))
+    queries.append(mariadb.sql_item(task_list_view))
 
     mariadb.execute_multiple_dml(queries)
 

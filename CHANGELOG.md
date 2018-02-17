@@ -7,11 +7,34 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Add `ISSUE_TEMPLATE.md` and `PULL_REQUEST_TEMPLATE.md`
+- Add CLI features.
+  - Currently support dashboard, mission lookup, and task lookup commands.
+  - Will support additional lookup features for config, input, and worker.
+  - `client.command`: Command interface module for CLI client.
+    - `command_factory`: Factory module.
+    - `dashboard`: Dashboard module.
+    - `mission`: Mission lookup module.
+    - `task`: Task listing and lookup detail for specific mission.
+  - `client.database`: CLI client specific database connection module.
+    - Base class
+      - `client_base`: Interface class for CLI client database connector.
+      - `client_factory`: CLI client database connector factory.
+    - Database class
+      - `mariadb_client`: MariaDB client database connector.
+    - Wrapper class
+      - `wrapper_base`: Output interface class for CLI.
+      - `cli_wrapper`: ASCII-Table based output wrapper.
+      - `json_wrapper`: JSON based output wrapper.
 
 ### Changed
 
-- Add multiple argument feature for rabbitmq rpc.
-
+- RabbitMQ RPC
+  - Add multiple argument feature for rabbitmq rpc.
+  - Add queue existence checking feature.
+- Change module paths to add CLI module.
+  - Move old `client` module move into `api.database` module.
+  - Move file on root module into `core` and `server` module. 
+  
 ## [v0.0.5]
 
 ### Added
@@ -104,8 +127,6 @@ All notable changes to this project will be documented in this file.
 
 - Move example config file into each sub-directory
 - Add new basic config file for the SQLite3
-
-### Removed
 
 ## v0.0.1 - 2018.01.01
 
