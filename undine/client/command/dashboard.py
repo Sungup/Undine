@@ -28,7 +28,7 @@ class Dashboard:
 
     @staticmethod
     def help():
-        return 'Task Dashboard'
+        return 'Task dashboard'
 
     @staticmethod
     def add_arguments(parser):

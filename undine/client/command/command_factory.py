@@ -1,13 +1,13 @@
 from undine.client.command.dashboard import Dashboard
-from undine.client.command.missions import Missions
-from undine.client.command.tasks import Tasks
+from undine.client.command.mission import Mission
+from undine.client.command.task import Task
 
 
 class CommandFactory:
     _COMMANDS = {
         'dashboard': Dashboard,
-        'missions': Missions,
-        'tasks': Tasks
+        'mission': Mission,
+        'task': Task
     }
 
     @staticmethod

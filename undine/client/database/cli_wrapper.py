@@ -6,6 +6,10 @@ class CliWrapper(WrapperBase):
     def __init__(self, connector):
         WrapperBase.__init__(self, connector)
 
+    def single_table(self, header, data):
+        return AsciiTable([self._HEADER['single_item']]
+                          + list(zip(header, data)))
+
     def mission_list(self, list_all=False):
         table = AsciiTable([self._HEADER['mission_list']]
                            + self._connector.mission_list(list_all))
@@ -16,5 +20,19 @@ class CliWrapper(WrapperBase):
         return table.table
 
     def mission_info(self, **kwargs):
-        return AsciiTable([self._HEADER['mission_info']]
-                          + self._connector.mission_info(**kwargs)).table
+        data = self._connector.mission_info(**kwargs)
+
+        if len(data) == 1:
+            return self.single_table(self._HEADER['mission_info'], *data).table
+        elif data:
+            return AsciiTable([self._HEADER['mission_info']] + data).table
+        else:
+            return AsciiTable([('Mission information is not exist.', )]).table
+
+    def task_list(self, **kwargs):
+        return AsciiTable([self._HEADER['task_list']]
+                          + self._connector.task_list(**kwargs)).table
+
+    def task_info(self, tid):
+        return self.single_table(self._HEADER['task_info'],
+                                 self._connector.task_info(tid)).table
