@@ -1,8 +1,5 @@
 
 class Mission:
-    _LIST_HEADER = ('MID', 'Name', 'Email',
-                    'Ready', 'Issued', 'Done', 'Canceled', 'Failed', 'Issued')
-
     _DESC = {
         'list': 'Mission lists and tasks status lookup command.',
         'info': 'Detail mission information lookup command.'

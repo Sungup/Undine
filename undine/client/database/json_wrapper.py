@@ -34,3 +34,23 @@ class JsonWrapper(WrapperBase):
     def task_info(self, tid):
         return JsonWrapper._export_item(self._HEADER['task_info'],
                                         self._connector.task_info(tid))
+
+    def config_info(self, cid):
+        return JsonWrapper._export_item(self._HEADER['config_info'],
+                                        self._connector.config_info(cid))
+
+    def input_info(self, iid):
+        return JsonWrapper._export_item(self._HEADER['input_info'],
+                                        self._connector.input_info(iid))
+
+    def input_list(self):
+        return JsonWrapper._export_list(self._HEADER['input_info'],
+                                        self._connector.input_list())
+
+    def worker_info(self, wid):
+        return JsonWrapper._export_item(self._HEADER['worker_info'],
+                                        self._connector.worker_info(wid))
+
+    def worker_list(self):
+        return JsonWrapper._export_list(self._HEADER['worker_info'],
+                                        self._connector.worker_list())

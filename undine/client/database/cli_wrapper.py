@@ -36,3 +36,23 @@ class CliWrapper(WrapperBase):
     def task_info(self, tid):
         return self.single_table(self._HEADER['task_info'],
                                  self._connector.task_info(tid)).table
+
+    def config_info(self, cid):
+        return self.single_table(self._HEADER['config_info'],
+                                 self._connector.config_info(cid)).table
+
+    def input_info(self, iid):
+        return self.single_table(self._HEADER['input_info'],
+                                 self._connector.input_info(iid)).table
+
+    def input_list(self):
+        return AsciiTable([self._HEADER['input_info']]
+                          + self._connector.input_list()).table
+
+    def worker_info(self, wid):
+        return self.single_table(self._HEADER['worker_info'],
+                                 self._connector.worker_info(wid)).table
+
+    def worker_list(self):
+        return AsciiTable([self._HEADER['worker_info']]
+                          + self._connector.worker_list()).table

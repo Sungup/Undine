@@ -10,9 +10,14 @@ class WrapperBase(ClientBase):
         'mission_info': ('MID', 'Name', 'Email', 'Description', 'Issued At'),
         'task_list': ('TID', 'Name', 'Host', 'IP', 'State',
                       'Issued', 'Updated', 'Reportable'),
-        'task_info': ('TID', 'Name', 'Host', 'IP', 'State', 'CID', 'IID', 'WID',
+        'task_info': ('TID', 'Name', 'Host', 'IP', 'State',
+                      'MID', 'CID', 'IID', 'WID',
                       'Issued At', 'Updated At', 'Reportable',
-                      'Result', 'Succeed At', 'Error', 'Failed At')
+                      'Result', 'Succeed At', 'Error', 'Failed At'),
+        'config_info': ('CID', 'Name', 'Config', 'Issued At'),
+        'input_info': ('IID', 'Name', 'Items', 'Issued At'),
+        'worker_info': ('WID', 'Name', 'Command',
+                        'Arguments', 'Worker Directory', 'Issued At')
     }
 
     def __init__(self, connector):

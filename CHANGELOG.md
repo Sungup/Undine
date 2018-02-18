@@ -11,10 +11,14 @@ All notable changes to this project will be documented in this file.
   - Currently support dashboard, mission lookup, and task lookup commands.
   - Will support additional lookup features for config, input, and worker.
   - `client.command`: Command interface module for CLI client.
-    - `command_factory`: Factory module.
-    - `dashboard`: Dashboard module.
-    - `mission`: Mission lookup module.
-    - `task`: Task listing and lookup detail for specific mission.
+    - `command_factory.py`: Factory module.
+    - `dashboard.py`: Dashboard module.
+    - `mission.py`: Mission lookup module.
+    - `task.py`: Task and its attribute lookup module.
+      - `Task`: Task lookup command class of the specific mission.
+      - `Config`: Config lookup command.
+      - `Input`: Input lookup command.
+      - `Worker`: Worker lookup command.
   - `client.database`: CLI client specific database connection module.
     - Base class
       - `client_base`: Interface class for CLI client database connector.

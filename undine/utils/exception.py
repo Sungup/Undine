@@ -7,6 +7,10 @@ class UndineException(Exception):
         """
         Exception.__init__(self, *args)
 
+    @property
+    def message(self):
+        return '\033[1m[Runtime Error]:\033[0m {}'.format(str(self))
+
 
 class VirtualMethodException(UndineException):
     __MESSAGE = '{0} method is the virtual method of {1} class.'
