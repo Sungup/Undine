@@ -43,21 +43,26 @@ class UndineClient:
 
     @staticmethod
     def run():
-        config = UndineClient.parse()
+        try:
+            config = UndineClient.parse()
 
-        if not os.path.isfile(config.config_file):
-            raise UndineException('No such config file at {}.'.format(
-                config.config_file))
+            if not os.path.isfile(config.config_file):
+                raise UndineException('No such config file at {}.'.format(
+                    config.config_file))
 
-        connection = json.load(open(config.config_file, 'r'))
-        command = config.command
+            connection = json.load(open(config.config_file, 'r'))
+            command = config.command
 
-        # Remove useless global arguments
-        #  - config_file: already used parsing json config file.
-        del config.config_file
-        del config.command
+            # Remove useless global arguments
+            #  - config_file: already used parsing json config file.
+            del config.config_file
+            del config.command
 
-        UndineClient(command, config, connection)._run()
+            UndineClient(command, config, connection)._run()
+
+        except UndineException as error:
+            print(error.message)
+            pass
 
 
 if __name__ == '__main__':

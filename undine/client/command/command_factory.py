@@ -1,13 +1,16 @@
 from undine.client.command.dashboard import Dashboard
 from undine.client.command.mission import Mission
-from undine.client.command.task import Task
+from undine.client.command.task import Task, Config, Input, Worker
 
 
 class CommandFactory:
     _COMMANDS = {
         'dashboard': Dashboard,
         'mission': Mission,
-        'task': Task
+        'task': Task,
+        'config': Config,
+        'input': Input,
+        'worker': Worker
     }
 
     @staticmethod
