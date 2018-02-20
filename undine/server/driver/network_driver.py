@@ -1,17 +1,17 @@
 from undine.database.rabbitmq import RabbitMQConnector
-from undine.driver.driver_base import DriverBase
+from undine.server.driver.base_driver import BaseDriver
 from undine.utils.exception import UndineException, VirtualMethodException
 from undine.utils.system import System
 
 import json
 
 
-class NetworkDriverBase(DriverBase):
+class BaseNetworkDriver(BaseDriver):
     #
     # Constructor & Destructor
     #
     def __init__(self, task_queue, config, config_dir):
-        DriverBase.__init__(self, config, config_dir)
+        BaseDriver.__init__(self, config, config_dir)
 
         if task_queue is None:
             raise UndineException('Missing RabbitMQ option field (task_queue)')

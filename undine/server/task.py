@@ -1,4 +1,4 @@
-from undine.core import information as info
+from undine.server import information as info
 from undine.utils.exception import UndineException
 from undine.utils.path import Path
 

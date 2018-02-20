@@ -1,11 +1,12 @@
 from os import path
-from undine.core.information import ConfigInfo, WorkerInfo, InputInfo, TaskInfo
 from undine.database.sqlite import SQLiteConnector
-from undine.driver.driver_base import DriverBase
+from undine.server.driver.base_driver import BaseDriver
+from undine.server.information import ConfigInfo, WorkerInfo, InputInfo
+from undine.server.information import TaskInfo
 from undine.utils.exception import UndineException
 
 
-class SQLiteDriver(DriverBase):
+class SQLiteDriver(BaseDriver):
     _QUERY = {
         'fetch': "SELECT tid, cid, iid, wid, reportable FROM task "
                  "WHERE state = 'R' LIMIT 1",
@@ -28,7 +29,7 @@ class SQLiteDriver(DriverBase):
     # Constructor & Destructor
     #
     def __init__(self, config, config_dir):
-        DriverBase.__init__(self, config, config_dir)
+        BaseDriver.__init__(self, config, config_dir)
 
         # 1. Check input parameter is no missing
         if 'db_file' not in config:

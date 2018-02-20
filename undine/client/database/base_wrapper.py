@@ -1,7 +1,7 @@
-from undine.client.database.client_base import ClientBase
+from undine.client.database.base_client import BaseClient
 
 
-class WrapperBase(ClientBase):
+class BaseWrapper(BaseClient):
     _HEADER = {
         'single_item': ('Field', 'Value'),
         'mission_list': ('MID', 'Name', 'Email',

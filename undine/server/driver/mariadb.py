@@ -1,9 +1,10 @@
-from undine.core.information import ConfigInfo, WorkerInfo, InputInfo, TaskInfo
+from undine.server.driver.network_driver import BaseNetworkDriver
+from undine.server.information import ConfigInfo, WorkerInfo, InputInfo
+from undine.server.information import TaskInfo
 from undine.database.mariadb import MariaDbConnector
-from undine.driver.network_driver_base import NetworkDriverBase
 
 
-class MariaDbDriver(NetworkDriverBase):
+class MariaDbDriver(BaseNetworkDriver):
     _QUERY = {
         'task': '''
             SELECT HEX(tid), HEX(cid), HEX(iid), HEX(wid), reportable
@@ -43,7 +44,7 @@ class MariaDbDriver(NetworkDriverBase):
     # Constructor & Destructor
     #
     def __init__(self, task_queue, config, config_dir):
-        NetworkDriverBase.__init__(self, task_queue, config, config_dir)
+        BaseNetworkDriver.__init__(self, task_queue, config, config_dir)
 
         self._mariadb = MariaDbConnector(config)
 

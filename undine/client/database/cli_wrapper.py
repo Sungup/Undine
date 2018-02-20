@@ -1,10 +1,10 @@
 from terminaltables import AsciiTable
-from undine.client.database.wrapper_base import WrapperBase
+from undine.client.database.base_wrapper import BaseWrapper
 
 
-class CliWrapper(WrapperBase):
+class CliWrapper(BaseWrapper):
     def __init__(self, connector):
-        WrapperBase.__init__(self, connector)
+        BaseWrapper.__init__(self, connector)
 
     def single_table(self, header, data):
         return AsciiTable([self._HEADER['single_item']]

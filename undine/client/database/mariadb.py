@@ -1,10 +1,10 @@
 from collections import namedtuple
-from undine.client.database.client_base import ClientBase
+from undine.client.database.base_client import BaseClient
 from undine.database.mariadb import MariaDbConnector
 from undine.utils.exception import UndineException
 
 
-class MariaDbClient(ClientBase):
+class MariaDbClient(BaseClient):
     _QUERY = {
         'mission_list': '''
           SELECT mid, name, email,

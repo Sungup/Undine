@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 from collections import namedtuple
-from undine.api.database.mariadb_client import MariaDbClient
+from undine.api.database.mariadb import MariaDbClient
 from undine.database.mariadb import MariaDbConnector
 from undine.database.rabbitmq import RabbitMQConnector
 

@@ -4,7 +4,7 @@ from undine.utils.system import print_console_header
 import undine.utils.logging as logging
 
 
-class DriverBase:
+class BaseDriver:
     _DRIVER_LOGGER_NAME = 'undine-driver'
     _DRIVER_LOGGER_PATH = '/tmp/{}.log'.format(_DRIVER_LOGGER_NAME)
     _DRIVER_LOGGER_LEVEL = 'ERROR'

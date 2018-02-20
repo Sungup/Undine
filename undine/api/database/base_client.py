@@ -4,7 +4,7 @@ import json
 import uuid
 
 
-class ClientBase:
+class BaseClient:
     def __init__(self, publish_task=None):
         if publish_task:
             self.publish_task = publish_task

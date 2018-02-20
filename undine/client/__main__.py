@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
+from undine.client.command import CommandFactory
+from undine.client.database import ClientFactory
 from undine.utils.exception import UndineException
-from undine.client.command.command_factory import CommandFactory
-from undine.client.database.client_factory import ClientFactory
 
 import json
 import os

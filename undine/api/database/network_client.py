@@ -1,13 +1,13 @@
-from undine.api.database.client_base import ClientBase
+from undine.api.database.base_client import BaseClient
 from undine.database.rabbitmq import RabbitMQConnector
 from undine.utils.exception import UndineException, VirtualMethodException
 
 import json
 
 
-class NetworkClientBase(ClientBase):
+class BaseNetworkClient(BaseClient):
     def __init__(self, task_queue):
-        ClientBase.__init__(self, self.__default_publish_task_with_mid)
+        BaseClient.__init__(self, self.__default_publish_task_with_mid)
 
         if task_queue is None:
             raise UndineException('Missing RabbitMQ option field (task_queue)')
