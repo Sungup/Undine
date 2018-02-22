@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ## Added
 
+- Add host table and its manipulation features on `undine.server`
+  - Move the ghost task, issued but not running, into cancel state at server 
+    log in time.
+- Print host information on dashboard.
+
 ## Changed
 
 - Refactoring some files and class names
@@ -13,6 +18,8 @@ All notable changes to this project will be documented in this file.
   - Rename some abstract class name and files.  
     `ex) ClassBase -> BaseClass, file_driver.py -> file.py`
   - Move factory class into `__init__.py` of each package directory.
+  - Move database wrapper for cli client into `undine.client.database.wrapper`
+  - Merge `network_client.py` into `base_client`
 
 ## [v0.0.6]
 

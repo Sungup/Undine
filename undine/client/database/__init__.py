@@ -1,9 +1,10 @@
 from undine.utils.exception import UndineException
 
 # For factory item
-from undine.client.database.cli_wrapper import CliWrapper
-from undine.client.database.json_wrapper import JsonWrapper
 from undine.client.database.mariadb import MariaDbClient
+
+from undine.client.database.wrapper.cli import CliWrapper
+from undine.client.database.wrapper.json import JsonWrapper
 
 
 class ClientFactory:

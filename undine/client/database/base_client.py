@@ -28,3 +28,6 @@ class BaseClient:
 
     def worker_list(self):
         raise VirtualMethodException(BaseClient, 'worker_list')
+
+    def host_list(self):
+        raise VirtualMethodException(BaseClient, 'host_list')

@@ -64,6 +64,11 @@ class MariaDbClient(BaseClient):
                  DATE_FORMAT(issued, '%Y-%m-%d %T') AS issued
             FROM worker {where}
         ORDER BY issued
+        ''',
+        'host_list': '''
+          SELECT name, ip, issued, canceled, failed,
+                 registered, logged_in, logged_out
+            FROM host_list
         '''
     }
 
@@ -171,4 +176,8 @@ class MariaDbClient(BaseClient):
 
     def worker_list(self):
         query_set = self._build_query(self._QUERY['worker_info'])
+        return self._mariadb.fetch_all_tuples(**query_set)
+
+    def host_list(self):
+        query_set = self._build_query(self._QUERY['host_list'])
         return self._mariadb.fetch_all_tuples(**query_set)

@@ -13,24 +13,35 @@ import random
 def db_build(rabbitmq_config, mariadb_config):
     create_table = {
         'state_type': '''
-            CREATE TABLE IF NOT EXISTS state_type
-            (state CHAR(1) PRIMARY KEY NOT NULL, name TEXT)
+            CREATE TABLE IF NOT EXISTS state_type (
+                state CHAR(1) PRIMARY KEY NOT NULL,
+                name TEXT
+            )
         ''',
         'mission': '''
-            CREATE TABLE IF NOT EXISTS mission 
-            (mid BINARY(16) PRIMARY KEY, name TEXT, email TEXT,
-             description TEXT,
-             issued DATETIME DEFAULT CURRENT_TIMESTAMP)
+            CREATE TABLE IF NOT EXISTS mission (
+                mid BINARY(16) PRIMARY KEY,
+                name TEXT,
+                email TEXT,
+                description TEXT,
+                issued DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
         ''',
         'config': '''
-            CREATE TABLE IF NOT EXISTS config
-            (cid BINARY(16) PRIMARY KEY, name TEXT, config TEXT,
-             issued DATETIME DEFAULT CURRENT_TIMESTAMP)
+            CREATE TABLE IF NOT EXISTS config (
+                cid BINARY(16) PRIMARY KEY, 
+                name TEXT,
+                config TEXT,
+                issued DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
         ''',
         'input': '''
-            CREATE TABLE IF NOT EXISTS input
-            (iid BINARY(16) PRIMARY KEY, name TEXT, items TEXT,
-             issued DATETIME DEFAULT CURRENT_TIMESTAMP)
+            CREATE TABLE IF NOT EXISTS input (
+                iid BINARY(16) PRIMARY KEY,
+                name TEXT,
+                items TEXT,
+                issued DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
         ''',
         'worker': '''
             CREATE TABLE IF NOT EXISTS worker
@@ -39,32 +50,47 @@ def db_build(rabbitmq_config, mariadb_config):
              issued DATETIME DEFAULT CURRENT_TIMESTAMP)
         ''',
         'task': '''
-            CREATE TABLE IF NOT EXISTS task
-            (tid BINARY(16) PRIMARY KEY, name TEXT,
-             cid BINARY(16) NOT NULL REFERENCES config(cid),
-             iid BINARY(16) NOT NULL REFERENCES input(iid),
-             wid BINARY(16) NOT NULL REFERENCES worker(wid),
-             mid BINARY(16) DEFAULT(NULL) REFERENCES mission(mid),
-             issued DATETIME DEFAULT CURRENT_TIMESTAMP,
-             updated DATETIME ON UPDATE CURRENT_TIMESTAMP,
-             host VARCHAR(255),
-             ip INT UNSIGNED,
-             reportable BOOLEAN NOT NULL DEFAULT(TRUE),
-             state CHAR(1) NOT NULL DEFAULT('R') REFERENCES state_type(state),
-             KEY state_key (mid, state))
+            CREATE TABLE IF NOT EXISTS task (
+                tid BINARY(16) PRIMARY KEY, 
+                name TEXT,
+                cid BINARY(16) NOT NULL REFERENCES config(cid),
+                iid BINARY(16) NOT NULL REFERENCES input(iid),
+                wid BINARY(16) NOT NULL REFERENCES worker(wid),
+                mid BINARY(16) DEFAULT(NULL) REFERENCES mission(mid),
+                issued DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated DATETIME ON UPDATE CURRENT_TIMESTAMP,
+                host VARCHAR(255),
+                ip INT UNSIGNED,
+                reportable BOOLEAN NOT NULL DEFAULT(TRUE),
+                state CHAR(1) NOT NULL DEFAULT('R')
+                              REFERENCES state_type(state),
+                KEY state_key (mid, state),
+                KEY host_state (ip, state)
+            )
         ''',
         'result': '''
-            CREATE TABLE IF NOT EXISTS result
-            (tid BINARY(16) NOT NULL REFERENCES task(tid),
-             reported DATETIME DEFAULT CURRENT_TIMESTAMP,
-             content TEXT)
+            CREATE TABLE IF NOT EXISTS result (
+                tid BINARY(16) NOT NULL REFERENCES task(tid),
+                reported DATETIME DEFAULT CURRENT_TIMESTAMP,
+                content TEXT
+            )
         ''',
         'error': '''
-            CREATE TABLE IF NOT EXISTS error
-            (tid BINARY(16) NOT NULL REFERENCES task(tid),
-             informed DATETIME DEFAULT CURRENT_TIMESTAMP,
-             message TEXT)
-         '''
+            CREATE TABLE IF NOT EXISTS error (
+                tid BINARY(16) NOT NULL REFERENCES task(tid),
+                informed DATETIME DEFAULT CURRENT_TIMESTAMP,
+                message TEXT
+            )
+        ''',
+        'host': '''
+            CREATE TABLE IF NOT EXISTS host (
+                ip INT UNSIGNED PRIMARY KEY NOT NULL,
+                name VARCHAR(255),
+                registered DATETIME DEFAULT CURRENT_TIMESTAMP,
+                logged_in DATETIME,
+                logged_out DATETIME
+            )
+        '''
     }
 
     dashboard_view = '''
@@ -79,8 +105,8 @@ def db_build(rabbitmq_config, mariadb_config):
                m.issued AS issued_at
           FROM mission AS m, task AS t
          WHERE m.mid = t.mid
-         GROUP BY m.mid
-         ORDER BY m.issued DESC
+      GROUP BY m.mid
+      ORDER BY m.issued DESC
     '''
 
     task_list_view = '''
@@ -90,7 +116,19 @@ def db_build(rabbitmq_config, mariadb_config):
                t.cid, t.iid, t.wid
           FROM task AS t, state_type s
          WHERE t.state = s.state
-         ORDER BY issued ASC
+      ORDER BY issued ASC
+    '''
+
+    host_list_view = '''
+        CREATE OR REPLACE VIEW host_list AS
+        SELECT h.name, INET_NTOA(h.ip) as ip,
+               COUNT(CASE WHEN t.state = 'I' THEN 1 END) AS issued,
+               COUNT(CASE WHEN t.state = 'C' THEN 1 END) AS canceled,
+               COUNT(CASE WHEN t.state = 'F' THEN 1 END) AS failed,
+               h.registered, h.logged_in, h.logged_out
+          FROM host AS h
+          LEFT OUTER JOIN task AS t on h.ip = t.ip
+      ORDER BY h.ip ASC
     '''
 
     state_insertion = 'INSERT INTO state_type VALUES (%s, %s)'
@@ -115,6 +153,7 @@ def db_build(rabbitmq_config, mariadb_config):
 
     queries.append(mariadb.sql_item(dashboard_view))
     queries.append(mariadb.sql_item(task_list_view))
+    queries.append(mariadb.sql_item(host_list_view))
 
     mariadb.execute_multiple_dml(queries)
 

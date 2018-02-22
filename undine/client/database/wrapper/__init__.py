@@ -17,7 +17,9 @@ class BaseWrapper(BaseClient):
         'config_info': ('CID', 'Name', 'Config', 'Issued At'),
         'input_info': ('IID', 'Name', 'Items', 'Issued At'),
         'worker_info': ('WID', 'Name', 'Command',
-                        'Arguments', 'Worker Directory', 'Issued At')
+                        'Arguments', 'Worker Directory', 'Issued At'),
+        'host_list': ('Name', 'IP', 'Issued', 'Canceled', 'Failed',
+                      'Registered', 'Logged-in', 'Logged-out')
     }
 
     def __init__(self, connector):

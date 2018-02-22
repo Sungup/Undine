@@ -1,5 +1,5 @@
 from terminaltables import AsciiTable
-from undine.client.database.base_wrapper import BaseWrapper
+from undine.client.database.wrapper import BaseWrapper
 
 
 class CliWrapper(BaseWrapper):
@@ -56,3 +56,12 @@ class CliWrapper(BaseWrapper):
     def worker_list(self):
         return AsciiTable([self._HEADER['worker_info']]
                           + self._connector.worker_list()).table
+
+    def host_list(self):
+        table = AsciiTable([self._HEADER['host_list']]
+                           + self._connector.host_list())
+
+        for column in range(2, 5):
+            table.justify_columns[column] = 'right'
+
+        return table.table

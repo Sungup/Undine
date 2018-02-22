@@ -1,4 +1,4 @@
-from undine.api.database.network_client import BaseNetworkClient
+from undine.api.database.base_client import BaseNetworkClient
 from undine.database.mariadb import MariaDbConnector
 
 
