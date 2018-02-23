@@ -1,7 +1,25 @@
-from undine.utils.exception import VirtualMethodException
+from undine.database.rabbitmq import RabbitMQRpcClient
+from undine.utils.exception import UndineException, VirtualMethodException
 
 
 class BaseClient:
+    def __init__(self, config=None):
+        self._config = config
+
+    def _db_config(self):
+        if isinstance(self._config, dict):
+            return self._config['database']
+        else:
+            return None
+
+    def rpc_call(self, ip, command, *args, **kwargs):
+        if not isinstance(self._config, dict) or 'rpc' not in self._config:
+            raise UndineException('RPC configuration is not exist.')
+
+        rpc = RabbitMQRpcClient(self._config['rpc'], 'rpc-{}'.format(ip))
+
+        return rpc.call(command, *args, **kwargs)
+
     def mission_list(self, list_all=False):
         raise VirtualMethodException(BaseClient, 'mission_list')
 

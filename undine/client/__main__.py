@@ -29,10 +29,7 @@ class UndineClient:
         return parser.parse_args()
 
     def __init__(self, command, config, connection):
-        if 'database' not in connection:
-            raise UndineException('There is no database connection information')
-
-        self._connector = ClientFactory.create(connection['database'],
+        self._connector = ClientFactory.create(connection,
                                                json=config.json, cli=True)
 
         self._command = CommandFactory.get_command(command, config,

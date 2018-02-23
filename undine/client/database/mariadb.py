@@ -67,7 +67,7 @@ class MariaDbClient(BaseClient):
         ''',
         'host_list': '''
           SELECT name, ip, issued, canceled, failed,
-                 registered, logged_in, logged_out
+                 registered, logged_in, logged_out, state
             FROM host_list
         '''
     }
@@ -90,7 +90,8 @@ class MariaDbClient(BaseClient):
     # Constructor & Destructor
     #
     def __init__(self, config):
-        self._mariadb = MariaDbConnector(config)
+        BaseClient.__init__(self, config)
+        self._mariadb = MariaDbConnector(self._db_config())
 
     #
     # Private methods
@@ -161,8 +162,6 @@ class MariaDbClient(BaseClient):
 
     def input_list(self):
         query_set = self._build_query(self._QUERY['input_info'])
-
-        print(query_set['query'])
 
         return self._mariadb.fetch_all_tuples(**query_set)
 

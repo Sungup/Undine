@@ -1,4 +1,5 @@
 from undine.client.command.dashboard import Dashboard
+from undine.client.command.host import Host
 from undine.client.command.mission import Mission
 from undine.client.command.task import Task, Config, Input, Worker
 
@@ -7,6 +8,7 @@ class CommandFactory:
     _COMMANDS = {
         'dashboard': Dashboard,
         'mission': Mission,
+        'host': Host,
         'task': Task,
         'config': Config,
         'input': Input,

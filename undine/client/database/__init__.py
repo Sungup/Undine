@@ -16,7 +16,10 @@ class ClientFactory:
 
     @staticmethod
     def create(config, json=False, cli=True):
-        type_ = config.setdefault('type', 'Invalid')
+        if 'database' not in config:
+            raise UndineException('There is no database connection information')
+
+        type_ = config['database'].setdefault('type', 'Invalid')
 
         if type_ not in ClientFactory._DB_DRIVER:
             raise UndineException(ClientFactory._INVALID_TYPE.format(type_))

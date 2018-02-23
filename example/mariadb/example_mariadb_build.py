@@ -125,9 +125,11 @@ def db_build(rabbitmq_config, mariadb_config):
                COUNT(CASE WHEN t.state = 'I' THEN 1 END) AS issued,
                COUNT(CASE WHEN t.state = 'C' THEN 1 END) AS canceled,
                COUNT(CASE WHEN t.state = 'F' THEN 1 END) AS failed,
-               h.registered, h.logged_in, h.logged_out
+               h.registered, h.logged_in, h.logged_out,
+               IF(logged_in < logged_out, 'Offline', '') AS state
           FROM host AS h
           LEFT OUTER JOIN task AS t on h.ip = t.ip
+      GROUP BY h.name, h.ip, h.registered, h.logged_in, h.logged_out
       ORDER BY h.ip ASC
     '''
 

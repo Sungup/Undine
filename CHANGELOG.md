@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - Add host table and its manipulation features on `undine.server`
   - Move the ghost task, issued but not running, into cancel state at server 
     log in time.
+  - Add host CLI command.
 - Print host information on dashboard.
 
 ## Changed
@@ -20,6 +21,7 @@ All notable changes to this project will be documented in this file.
   - Move factory class into `__init__.py` of each package directory.
   - Move database wrapper for cli client into `undine.client.database.wrapper`
   - Merge `network_client.py` into `base_client`
+  - Add new RPC command `list`
 
 ## [v0.0.6]
 

@@ -19,8 +19,16 @@ class BaseWrapper(BaseClient):
         'worker_info': ('WID', 'Name', 'Command',
                         'Arguments', 'Worker Directory', 'Issued At'),
         'host_list': ('Name', 'IP', 'Issued', 'Canceled', 'Failed',
-                      'Registered', 'Logged-in', 'Logged-out')
+                      'Registered', 'Logged-in', 'Logged-out', 'State')
     }
 
     def __init__(self, connector):
+        BaseClient.__init__(self)
+
         self._connector = connector
+
+    def _db_config(self):
+        return self._connector._db_config()
+
+    def rpc_call(self, ip, command, *args, **kwargs):
+        return self._connector.rpc_call(ip, command, *args, **kwargs)
