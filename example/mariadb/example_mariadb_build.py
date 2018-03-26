@@ -70,14 +70,14 @@ def db_build(rabbitmq_config, mariadb_config):
         ''',
         'result': '''
             CREATE TABLE IF NOT EXISTS result (
-                tid BINARY(16) NOT NULL REFERENCES task(tid),
+                tid BINARY(16) NOT NULL PRIMARY KEY REFERENCES task(tid),
                 reported DATETIME DEFAULT CURRENT_TIMESTAMP,
                 content TEXT
             )
         ''',
         'error': '''
             CREATE TABLE IF NOT EXISTS error (
-                tid BINARY(16) NOT NULL REFERENCES task(tid),
+                tid BINARY(16) NOT NULL PRIMARY KEY REFERENCES task(tid),
                 informed DATETIME DEFAULT CURRENT_TIMESTAMP,
                 message TEXT
             )
@@ -89,6 +89,16 @@ def db_build(rabbitmq_config, mariadb_config):
                 registered DATETIME DEFAULT CURRENT_TIMESTAMP,
                 logged_in DATETIME,
                 logged_out DATETIME
+            )
+        ''',
+        'trash': '''
+            CREATE TABLE IF NOT EXISTS trash (
+                id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                tid BINARY(16) NOT NULL REFERENCES task(tid),
+                generated DATETIME NOT NULL,
+                trashed DATETIME DEFAULT CURRENT_TIMESTAMP,
+                category VARCHAR(16) NOT NULL,
+                content TEXT
             )
         '''
     }

@@ -23,17 +23,6 @@ class CommandFactory:
             Class.add_arguments(
                 subparsers.add_parser(name, help = Class.help()))
 
-        # TODO Add additional parser
-        """
-        Following commands will added near future
-
-        # Nodes command
-        nodes = subparsers.add_parser('nodes', help='List-up service nodes')
-
-        # Stats command
-        stats = subparsers.add_parser('stats', help='Service node stats')
-        """
-
     @staticmethod
     def get_command(command, config, connector):
         return CommandFactory._COMMANDS[command](config, connector)

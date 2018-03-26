@@ -69,6 +69,34 @@ class MariaDbClient(BaseClient):
           SELECT name, ip, issued, canceled, failed,
                  registered, logged_in, logged_out, state
             FROM host_list
+        ''',
+        'trash_result': '''
+          INSERT INTO trash (tid, generated, category, content)
+          SELECT tid, reported, 'result', content FROM result
+           WHERE tid in (SELECT tid FROM task {where})
+        ''',
+        'trash_error': '''
+          INSERT INTO trash (tid, generated, category, content)
+          SELECT tid, informed, 'error', message FROM error
+           WHERE tid in (SELECT tid FROM task {where})
+        ''',
+        'delete_result': '''
+          DELETE FROM result
+           WHERE tid in (SELECT tid FROM task {where})
+        ''',
+        'delete_error': '''
+          DELETE FROM error
+           WHERE tid in (SELECT tid FROM task {where})
+        ''',
+        'reset_list': '''
+          SELECT HEX(tid), HEX(cid), HEX(iid), HEX(wid) 
+            FROM task 
+           WHERE tid in (SELECT tid FROM task {where})
+        ''',
+        'reset_task': '''
+          UPDATE task
+             SET state = 'R', host = NULL, ip = NULL
+           WHERE tid in (SELECT tid FROM task {where})
         '''
     }
 
@@ -114,6 +142,9 @@ class MariaDbClient(BaseClient):
         query = template.format(where=where)
 
         return {'query': query, 'params': params}
+
+    def _build_sql_item(self, template, **kwargs):
+        return self._mariadb.sql_item(**self._build_query(template, **kwargs))
 
     #
     # Inherited methods
@@ -180,3 +211,17 @@ class MariaDbClient(BaseClient):
     def host_list(self):
         query_set = self._build_query(self._QUERY['host_list'])
         return self._mariadb.fetch_all_tuples(**query_set)
+
+    def _reset_list(self, **kwargs):
+        query_set = self._build_query(self._QUERY['reset_list'], **kwargs)
+        return self._mariadb.fetch_all_tuples(**query_set)
+
+    def _reset_task(self, **kwargs):
+        # Build 5 reset queries
+        queries = [
+            self._build_sql_item(self._QUERY[name], **kwargs)
+            for name in ('trash_result', 'trash_error',
+                         'delete_result', 'delete_error', 'reset_task')
+        ]
+
+        self._mariadb.execute_multiple_dml(queries)
