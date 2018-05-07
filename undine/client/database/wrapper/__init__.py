@@ -1,7 +1,7 @@
-from undine.client.database.client_base import ClientBase
+from undine.client.database.base_client import BaseClient
 
 
-class WrapperBase(ClientBase):
+class BaseWrapper(BaseClient):
     _HEADER = {
         'single_item': ('Field', 'Value'),
         'mission_list': ('MID', 'Name', 'Email',
@@ -17,8 +17,19 @@ class WrapperBase(ClientBase):
         'config_info': ('CID', 'Name', 'Config', 'Issued At'),
         'input_info': ('IID', 'Name', 'Items', 'Issued At'),
         'worker_info': ('WID', 'Name', 'Command',
-                        'Arguments', 'Worker Directory', 'Issued At')
+                        'Arguments', 'Worker Directory', 'Issued At'),
+        'host_list': ('Name', 'IP', 'Issued', 'Canceled', 'Failed',
+                      'Registered', 'Logged-in', 'Logged-out', 'State')
     }
 
     def __init__(self, connector):
+        BaseClient.__init__(self)
+
         self._connector = connector
+
+    @property
+    def db_config(self):
+        return self._connector.db_config
+
+    def rpc_call(self, ip, command, *args, **kwargs):
+        return self._connector.rpc_call(ip, command, *args, **kwargs)

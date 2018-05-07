@@ -1,10 +1,11 @@
 from os import makedirs, path
-from undine.core.information import ConfigInfo, WorkerInfo, InputInfo, TaskInfo
-from undine.driver.driver_base import DriverBase
+from undine.server.driver.base_driver import BaseDriver
+from undine.server.information import ConfigInfo, WorkerInfo, InputInfo
+from undine.server.information import TaskInfo
 from undine.utils.exception import UndineException
 
 
-class FileDriver(DriverBase):
+class FileDriver(BaseDriver):
     _DEFAULT_RESULT_DIR = 'results'
     _DEFAULT_RESULT_EXT = '.log'
     _DEFAULT_WORKER_ID = 0
@@ -91,7 +92,7 @@ class FileDriver(DriverBase):
     # Constructor & Destructor
     #
     def __init__(self, config, config_dir):
-        DriverBase.__init__(self, config, config_dir)
+        BaseDriver.__init__(self, config, config_dir)
 
         # 1. Check input parameter is not missing
         if 'config_file' not in config:

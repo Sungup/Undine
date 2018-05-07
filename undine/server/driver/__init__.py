@@ -1,23 +1,23 @@
 from undine.utils.exception import UndineException
 
 # For factory item
-import undine.driver.file_driver
-import undine.driver.json_driver
-import undine.driver.sqlite_driver
-import undine.driver.mariadb_driver
+from undine.server.driver.file import FileDriver
+from undine.server.driver.json import JSONDriver
+from undine.server.driver.mariadb import MariaDbDriver
+from undine.server.driver.sqlite import SQLiteDriver
 
 
 class TaskDriverFactory:
     _INVALID_TYPE = "Unsupported driver type '{}'"
 
     _STAND_ALONE = {
-        'file': undine.driver.file_driver.FileDriver,
-        'json': undine.driver.json_driver.JSONDriver,
-        'sqlite': undine.driver.sqlite_driver.SQLiteDriver
+        'file': FileDriver,
+        'json': JSONDriver,
+        'sqlite': SQLiteDriver
     }
 
     _ONLINE = {
-        'mariadb': undine.driver.mariadb_driver.MariaDbDriver
+        'mariadb': MariaDbDriver
     }
 
     @staticmethod

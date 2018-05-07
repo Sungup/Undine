@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
+from undine.client.command import CommandFactory
+from undine.client.database import ClientFactory
 from undine.utils.exception import UndineException
-from undine.client.command.command_factory import CommandFactory
-from undine.client.database.client_factory import ClientFactory
 
 import json
 import os
@@ -29,10 +29,7 @@ class UndineClient:
         return parser.parse_args()
 
     def __init__(self, command, config, connection):
-        if 'database' not in connection:
-            raise UndineException('There is no database connection information')
-
-        self._connector = ClientFactory.create(connection['database'],
+        self._connector = ClientFactory.create(connection,
                                                json=config.json, cli=True)
 
         self._command = CommandFactory.get_command(command, config,

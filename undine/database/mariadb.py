@@ -11,7 +11,7 @@ class MariaDbConnector:
     _DEFAULT_USER = 'undine'
     _DEFAULT_PASSWD = 'password'
 
-    SQLItem = namedtuple('SQLItem', ['operation', 'params'])
+    SQLItem = namedtuple('SQLItem', ['query', 'params'])
 
     def __init__(self, config):
         db_config = {
@@ -23,13 +23,14 @@ class MariaDbConnector:
 
         try:
             self._pool = MariaDBConnectionPool(pool_name=db_config['database'],
+                                               pool_size=32,
                                                **db_config)
 
         except mariadb.Error as error:
             raise UndineException('MariaDB connection failed: {}'.format(error))
 
-    def sql_item(self, operation, params=tuple()):
-        return self.SQLItem(operation, params)
+    def sql_item(self, query, params = tuple()):
+        return self.SQLItem(query, params)
 
     def fetch_a_tuple(self, query, params=tuple()):
         conn = self._pool.get_connection()
@@ -61,7 +62,7 @@ class MariaDbConnector:
         cursor = conn.cursor()
 
         for item in execute_items:
-            cursor.execute(item.operation, item.params)
+            cursor.execute(item.query, item.params)
 
         cursor.close()
 

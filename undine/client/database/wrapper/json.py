@@ -1,11 +1,11 @@
-from undine.client.database.wrapper_base import WrapperBase
+from undine.client.database.wrapper import BaseWrapper
 
 import json
 
 
-class JsonWrapper(WrapperBase):
+class JsonWrapper(BaseWrapper):
     def __init__(self, connector):
-        WrapperBase.__init__(self, connector)
+        BaseWrapper.__init__(self, connector)
 
     @staticmethod
     def _export_list(header, values):
@@ -54,3 +54,7 @@ class JsonWrapper(WrapperBase):
     def worker_list(self):
         return JsonWrapper._export_list(self._HEADER['worker_info'],
                                         self._connector.worker_list())
+
+    def host_list(self):
+        return JsonWrapper._export_list(self._HEADER['host_list'],
+                                        self._connector.host_list())

@@ -1,9 +1,10 @@
-from undine.core.information import ConfigInfo, WorkerInfo, InputInfo, TaskInfo
+from undine.server.driver.base_driver import BaseNetworkDriver
+from undine.server.information import ConfigInfo, WorkerInfo, InputInfo
+from undine.server.information import TaskInfo
 from undine.database.mariadb import MariaDbConnector
-from undine.driver.network_driver_base import NetworkDriverBase
 
 
-class MariaDbDriver(NetworkDriverBase):
+class MariaDbDriver(BaseNetworkDriver):
     _QUERY = {
         'task': '''
             SELECT HEX(tid), HEX(cid), HEX(iid), HEX(wid), reportable
@@ -37,15 +38,31 @@ class MariaDbDriver(NetworkDriverBase):
             INSERT INTO error(tid, message)
                  VALUES (UNHEX(%(tid)s), %(message)s)
         ''',
+        'cleanup': '''
+            UPDATE task
+               SET state = 'C'
+             WHERE ip = INET_ATON(%(ip)s) AND state = 'I'
+        ''',
+        'login': '''
+            INSERT INTO host(name, ip, logged_in)
+                 VALUES(%(name)s, INET_ATON(%(ip)s), CURRENT_TIMESTAMP)
+            ON DUPLICATE KEY
+            UPDATE name = %(name)s, logged_in = CURRENT_TIMESTAMP
+        ''',
+        'logout': '''
+            UPDATE host
+               SET logged_out = CURRENT_TIMESTAMP
+             WHERE ip = INET_ATON(%(ip)s)
+        '''
     }
 
     #
     # Constructor & Destructor
     #
     def __init__(self, task_queue, config, config_dir):
-        NetworkDriverBase.__init__(self, task_queue, config, config_dir)
-
         self._mariadb = MariaDbConnector(config)
+
+        BaseNetworkDriver.__init__(self, task_queue, config, config_dir)
 
     #
     # Inherited methods
@@ -107,3 +124,16 @@ class MariaDbDriver(NetworkDriverBase):
         self._mariadb.execute_multiple_dml(queries)
 
         self._error_logging('tid({0})'.format(info['tid']), message)
+
+    def _logged_in(self):
+        host = {'ip': self.host.ipv4, 'name': self.host.name}
+
+        queries = [self._mariadb.SQLItem(self._QUERY['cleanup'], host),
+                   self._mariadb.SQLItem(self._QUERY['login'], host)]
+
+        self._mariadb.execute_multiple_dml(queries)
+
+    def _logged_out(self):
+        host = {'ip': self.host.ipv4}
+
+        self._mariadb.execute_single_dml(self._QUERY['logout'], host)

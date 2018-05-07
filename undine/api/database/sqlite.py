@@ -1,8 +1,8 @@
-from undine.api.database.client_base import ClientBase
+from undine.api.database.base_client import BaseClient
 from undine.database.sqlite import SQLiteConnector
 
 
-class SQLiteClient(ClientBase):
+class SQLiteClient(BaseClient):
     _QUERY = {
         'task': '''
             INSERT INTO task(tid, name, cid, iid, wid, reportable)
@@ -23,7 +23,7 @@ class SQLiteClient(ClientBase):
     }
 
     def __init__(self, config):
-        ClientBase.__init__(self)
+        BaseClient.__init__(self)
 
         self._sqlite = SQLiteConnector(config)
 

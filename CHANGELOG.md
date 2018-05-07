@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## Added
+
+- Add host table and its manipulation features on `undine.server`
+  - Move the ghost task, issued but not running, into cancel state at server 
+    log in time.
+  - Add host CLI command.
+- Print host information on dashboard.
+
+## Changed
+
+- Refactoring some files and class names
+  - Move `undine.driver` and `undine.rpc` into `undine.server`
+  - Rename some abstract class name and files.  
+    `ex) ClassBase -> BaseClass, file_driver.py -> file.py`
+  - Move factory class into `__init__.py` of each package directory.
+  - Move database wrapper for cli client into `undine.client.database.wrapper`
+  - Merge `network_client.py` into `base_client`
+  - Add new RPC command `list`
+
+## [v0.0.6]
+
 ### Added
 
 - Add `ISSUE_TEMPLATE.md` and `PULL_REQUEST_TEMPLATE.md`
@@ -169,7 +190,8 @@ All notable changes to this project will be documented in this file.
 - Add basic config file
   - `config/config.json`: Default configure file of Undine.
   
-[Unreleased]: /../compare/v0.0.5...HEAD
+[Unreleased]: /../compare/v0.0.6...HEAD
+[v0.0.6]: /../compare/v0.0.5...v0.0.6
 [v0.0.5]: /../compare/v0.0.4...v0.0.5
 [v0.0.4]: /../compare/v0.0.3...v0.0.4
 [v0.0.3]: /../compare/v0.0.2...v0.0.3

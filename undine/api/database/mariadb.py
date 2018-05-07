@@ -1,8 +1,8 @@
-from undine.api.database.network_client_base import NetworkClientBase
+from undine.api.database.base_client import BaseNetworkClient
 from undine.database.mariadb import MariaDbConnector
 
 
-class MariaDbClient(NetworkClientBase):
+class MariaDbClient(BaseNetworkClient):
     _QUERY = {
         'mission': '''
             INSERT INTO mission(mid, name, email, description)
@@ -31,7 +31,7 @@ class MariaDbClient(NetworkClientBase):
     }
 
     def __init__(self, task_queue, config):
-        NetworkClientBase.__init__(self, task_queue)
+        BaseNetworkClient.__init__(self, task_queue)
 
         self._mariadb = MariaDbConnector(config)
 

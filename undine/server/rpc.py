@@ -17,6 +17,8 @@ class RpcDaemon:
     def _call(self, command, *args, **kwargs):
         if command == 'all':
             return {name: func() for name, func in self._callbacks.items()}
+        elif command == 'list':
+            return {command: ['all'] + list(self._callbacks.keys())}
         elif command in self._callbacks:
             return {command: self._callbacks[command](*args, **kwargs)}
         else:

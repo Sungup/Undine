@@ -1,4 +1,3 @@
-from curses import wrapper, use_default_colors, curs_set
 from datetime import datetime
 from time import sleep
 from undine.utils.exception import UndineException
@@ -37,13 +36,15 @@ class Dashboard:
                             action='store', metavar='sec')
 
     def run(self):
-        wrapper(self.main)
+        curses.wrapper(self.main)
 
     def main(self, screen):
+        # TODO Improve the curses window decoration!
+
         try:
             # Clear background and remove blinking cursor
-            use_default_colors()
-            curs_set(0)
+            curses.use_default_colors()
+            curses.curs_set(0)
 
             screen.clear()
 
@@ -51,13 +52,24 @@ class Dashboard:
                 datetime_string = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 screen.erase()
 
+                mission_list = self._connector.mission_list()
+                host_list = self._connector.host_list()
+
+                # 2: padding, 5: mission table offset
+                host_offset = mission_list.count('\n') + 2 + 5
+
                 # Print header information
                 screen.addstr(0, 0, self._title, curses.A_BOLD)
                 screen.addstr(1, 1, '- Datetime: ' + datetime_string)
                 screen.addstr(2, 1, '- Localhost: ' + self._host)
 
-                # Print table
-                screen.addstr(3, 0, self._connector.mission_list())
+                # Print mission table
+                screen.addstr(4, 0, 'Mission state', curses.A_BOLD)
+                screen.addstr(5, 0, mission_list)
+
+                # Print host table
+                screen.addstr(host_offset,     0, 'Host state', curses.A_BOLD)
+                screen.addstr(host_offset + 1, 0, host_list)
 
                 screen.refresh()
                 sleep(self._term)

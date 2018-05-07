@@ -6,6 +6,13 @@
     "user": "undine",
     "password": "password"
   },
+  "task_queue": {
+    "host": "localhost",
+    "vhost": "undine",
+    "queue": "task",
+    "user": "undine",
+    "password": "password"
+  },
   "rpc": {
     "host": "localhost",
     "vhost": "undine",
