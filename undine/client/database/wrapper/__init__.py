@@ -27,8 +27,9 @@ class BaseWrapper(BaseClient):
 
         self._connector = connector
 
-    def _db_config(self):
-        return self._connector._db_config()
+    @property
+    def db_config(self):
+        return self._connector.db_config
 
     def rpc_call(self, ip, command, *args, **kwargs):
         return self._connector.rpc_call(ip, command, *args, **kwargs)

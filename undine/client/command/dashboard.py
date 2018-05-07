@@ -1,4 +1,3 @@
-from curses import wrapper, use_default_colors, curs_set
 from datetime import datetime
 from time import sleep
 from undine.utils.exception import UndineException
@@ -37,15 +36,15 @@ class Dashboard:
                             action='store', metavar='sec')
 
     def run(self):
-        wrapper(self.main)
+        curses.wrapper(self.main)
 
     def main(self, screen):
         # TODO Improve the curses window decoration!
 
         try:
             # Clear background and remove blinking cursor
-            use_default_colors()
-            curs_set(0)
+            curses.use_default_colors()
+            curses.curs_set(0)
 
             screen.clear()
 
