@@ -39,16 +39,16 @@ class MariaDbClient(BaseNetworkClient):
     # Protected inherited methods
     #
     def _insert_worker(self, worker):
-        self._mariadb.execute_single_dml(self._QUERY['worker'], worker)
+        self._mariadb.execute_single_dml(self._QUERY['worker'], **worker)
 
     def _insert_input(self, inputs):
-        self._mariadb.execute_single_dml(self._QUERY['input'], inputs)
+        self._mariadb.execute_single_dml(self._QUERY['input'], **inputs)
 
     def _insert_config(self, config):
-        self._mariadb.execute_single_dml(self._QUERY['config'], config)
+        self._mariadb.execute_single_dml(self._QUERY['config'], **config)
 
     def _insert_task(self, task):
-        self._mariadb.execute_single_dml(self._QUERY['task'], task)
+        self._mariadb.execute_single_dml(self._QUERY['task'], **task)
 
     def _insert_mission(self, mission):
-        self._mariadb.execute_single_dml(self._QUERY['mission'], mission)
+        self._mariadb.execute_single_dml(self._QUERY['mission'], **mission)

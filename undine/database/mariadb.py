@@ -1,17 +1,15 @@
-from collections import namedtuple
 from mysql.connector.pooling import MySQLConnectionPool as MariaDBConnectionPool
+from undine.database.base import Database
 from undine.utils.exception import UndineException
 
 import mysql.connector as mariadb
 
 
-class MariaDbConnector:
+class MariaDbConnector(Database):
     _DEFAULT_HOST = 'localhost'
     _DEFAULT_DATABASE = 'undine'
     _DEFAULT_USER = 'undine'
     _DEFAULT_PASSWD = 'password'
-
-    SQLItem = namedtuple('SQLItem', ['query', 'params'])
 
     def __init__(self, config):
         db_config = {
@@ -29,10 +27,30 @@ class MariaDbConnector:
         except mariadb.Error as error:
             raise UndineException('MariaDB connection failed: {}'.format(error))
 
-    def sql_item(self, query, params = tuple()):
-        return self.SQLItem(query, params)
+    def _execute_multiple_dml(self, queries):
+        conn = self._pool.get_connection()
 
-    def fetch_a_tuple(self, query, params=tuple()):
+        cursor = conn.cursor()
+
+        for item in queries:
+            cursor.execute(item.query, item.params)
+
+        cursor.close()
+
+        conn.commit()
+        conn.close()
+
+    def _execute_single_dml(self, query, params):
+        conn = self._pool.get_connection()
+
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        cursor.close()
+
+        conn.commit()
+        conn.close()
+
+    def _fetch_a_tuple(self, query, params):
         conn = self._pool.get_connection()
         cursor = conn.cursor()
 
@@ -44,7 +62,7 @@ class MariaDbConnector:
 
         return row
 
-    def fetch_all_tuples(self, query, params=tuple()):
+    def _fetch_all_tuples(self, query, params):
         conn = self._pool.get_connection()
         cursor = conn.cursor()
 
@@ -55,26 +73,3 @@ class MariaDbConnector:
         conn.close()
 
         return rows
-
-    def execute_multiple_dml(self, execute_items):
-        conn = self._pool.get_connection()
-
-        cursor = conn.cursor()
-
-        for item in execute_items:
-            cursor.execute(item.query, item.params)
-
-        cursor.close()
-
-        conn.commit()
-        conn.close()
-
-    def execute_single_dml(self, query, params):
-        conn = self._pool.get_connection()
-
-        cursor = conn.cursor()
-        cursor.execute(query, params)
-        cursor.close()
-
-        conn.commit()
-        conn.close()

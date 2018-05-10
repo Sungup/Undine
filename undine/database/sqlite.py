@@ -1,13 +1,11 @@
-from collections import namedtuple
 from threading import Lock
+from undine.database.base import Database
 
 import sqlite3
 
 
-class SQLiteConnector:
+class SQLiteConnector(Database):
     _DEFAULT_DB_FILE = 'task-set.sqlite3'
-
-    SQLItem = namedtuple('SQLItem', ['operation', 'params'])
 
     def __init__(self, config):
         self._conn = sqlite3.connect(config.setdefault('db_file',
@@ -25,10 +23,25 @@ class SQLiteConnector:
         self._conn.close()
         self._lock.release()
 
-    def sql_item(self, operation, params=tuple()):
-        return self.SQLItem(operation, params)
+    def _execute_multiple_dml(self, queries):
+        self._lock.acquire()
 
-    def fetch_a_tuple(self, query, params=tuple()):
+        for item in queries:
+            self._conn.execute(item.query, item.params)
+
+        self._conn.commit()
+
+        self._lock.release()
+
+    def _execute_single_dml(self, query, params):
+        self._lock.acquire()
+
+        self._conn.execute(query, params)
+        self._conn.commit()
+
+        self._lock.release()
+
+    def _fetch_a_tuple(self, query, params):
         self._lock.acquire()
 
         row = self._cursor.execute(query, params).fetchone()
@@ -37,7 +50,7 @@ class SQLiteConnector:
 
         return row
 
-    def fetch_all_tuples(self, query, params=tuple()):
+    def _fetch_all_tuples(self, query, params):
         self._lock.acquire()
 
         rows = self._cursor.execute(query, params).fetchall()
@@ -45,20 +58,3 @@ class SQLiteConnector:
         self._lock.release()
 
         return rows
-
-    def execute_multiple_dml(self, execute_items):
-        self._lock.acquire()
-
-        for item in execute_items:
-            self._conn.execute(item.operation, item.params)
-        self._conn.commit()
-
-        self._lock.release()
-
-    def execute_single_dml(self, query, params):
-        self._lock.acquire()
-
-        self._conn.execute(query, params)
-        self._conn.commit()
-
-        self._lock.release()

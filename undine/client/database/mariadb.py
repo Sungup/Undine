@@ -123,26 +123,28 @@ class MariaDbClient(BaseClient):
     # Private methods
     #
     @staticmethod
-    def _value(form, value):
+    def __value(form, value):
         return value if not form else form.format(value)
 
     @staticmethod
-    def _where(condition):
+    def __where(condition):
         return 'WHERE ' + ' AND '.join(condition) if condition else ''
 
-    def _build_query(self, query, **kwargs):
-        condition = list()
+    def __build_query(self, template, **kwargs):
+        where = list()
         params = dict()
 
         for k, v in kwargs.items():
             if k in self._WHERE_CLAUSE:
-                condition.append(self._WHERE_CLAUSE[k].clause)
-                params[k] = self._value(self._WHERE_CLAUSE[k].format, v)
+                where.append(self._WHERE_CLAUSE[k].clause)
+                params[k] = self.__value(self._WHERE_CLAUSE[k].format, v)
 
-        return {'query': query.format(self._where(condition)), 'params': params}
+        where = self.__where(where)
 
-    def _build_sql_item(self, template, **kwargs):
-        return self._db.sql_item(**self._build_query(template, **kwargs))
+        return dict(query=self._QUERY[template].format(where=where), **params)
+
+    def __build_sql_item(self, template, **kwargs):
+        return self._db.sql(**self.__build_query(template, **kwargs))
 
     #
     # Inherited methods
@@ -157,65 +159,61 @@ class MariaDbClient(BaseClient):
         if 'mid' in kwargs and len(kwargs['mid']) != 32:
             raise UndineException('MID value must feat to uuid length.')
 
-        query_set = self._build_query(self._QUERY['mission_info'], **kwargs)
-        return self._db.fetch_all_tuples(**query_set)
+        return self._db.fetch_all_tuples(**self.__build_query('mission_info',
+                                                              **kwargs))
 
     def task_list(self, **kwargs):
         if 'mid' not in kwargs or len(kwargs['mid']) != 32:
             raise UndineException('MID value must feat to uuid length.')
 
-        query_set = self._build_query(self._QUERY['task_list'], **kwargs)
-        return self._db.fetch_all_tuples(**query_set)
+        return self._db.fetch_all_tuples(**self.__build_query('task_list',
+                                                              **kwargs))
 
     def task_info(self, tid):
         if len(tid) != 32:
             raise UndineException('TID value must feat to uuid length.')
 
-        return self._db.fetch_a_tuple(self._QUERY['task_info'], {'tid': tid})
+        return self._db.fetch_a_tuple(self._QUERY['task_info'], tid=tid)
 
     def config_info(self, cid):
         if len(cid) != 32:
             raise UndineException('CID value must feat to uuid length.')
 
-        return self._db.fetch_a_tuple(self._QUERY['config_info'], {'cid': cid})
+        return self._db.fetch_a_tuple(self._QUERY['config_info'], cid=cid)
 
     def input_info(self, iid):
         if len(iid) != 32:
             raise UndineException('IID value must feat to uuid length.')
 
-        query_set = self._build_query(self._QUERY['input_info'], iid=iid)
-        return self._db.fetch_a_tuple(**query_set)
+        return self._db.fetch_a_tuple(**self.__build_query('input_info',
+                                                           iid=iid))
 
     def input_list(self):
-        query_set = self._build_query(self._QUERY['input_info'])
-
-        return self._db.fetch_all_tuples(**query_set)
+        return self._db.fetch_all_tuples(**self.__build_query('input_info'))
 
     def worker_info(self, wid):
         if len(wid) != 32:
             raise UndineException('WID value must feat to uuid length.')
 
-        query_set = self._build_query(self._QUERY['worker_info'], wid=wid)
-        return self._db.fetch_a_tuple(**query_set)
+        return self._db.fetch_a_tuple(**self.__build_query('worker_info',
+                                                           wid=wid))
 
     def worker_list(self):
-        query_set = self._build_query(self._QUERY['worker_info'])
-        return self._db.fetch_all_tuples(**query_set)
+        return self._db.fetch_all_tuples(**self.__build_query('worker_info'))
 
     def host_list(self):
-        query_set = self._build_query(self._QUERY['host_list'])
-        return self._db.fetch_all_tuples(**query_set)
+        return self._db.fetch_all_tuples(**self.__build_query('host_list'))
 
     # TODO will be deprecated
     def _reset_list(self, **kwargs):
-        query_set = self._build_query(self._QUERY['reset_list'], **kwargs)
-        return self._db.fetch_all_tuples(**query_set)
+        return self._db.fetch_all_tuples(**self.__build_query('reset_list',
+                                                              **kwargs))
 
     # TODO will be deprecated
     def _reset_task(self, tid):
         # Build 5 reset queries
         queries = [
-            self._build_sql_item(self._QUERY[name], tid=tid)
+            self.__build_sql_item(name, tid=tid)
             for name in ('trash_result', 'trash_error',
                          'delete_result', 'delete_error', 'reset_task')
         ]
