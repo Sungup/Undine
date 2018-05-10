@@ -36,18 +36,23 @@ def db_build(sqlite_config):
 
     state_insertion = 'INSERT INTO state_type VALUES (?, ?)'
 
-    state_items = [('R', 'ready'), ('I', 'issued'), ('D', 'done'),
-                   ('C', 'canceled'), ('F', 'failed')]
+    StateType = namedtuple('StateType', ['state', 'name'])
+
+    state_items = [StateType('R', 'ready'),
+                   StateType('I', 'issued'),
+                   StateType('D', 'done'),
+                   StateType('C', 'canceled'),
+                   StateType('F', 'failed')]
 
     # 0. Connect to file
     sqlite = SQLiteConnector(sqlite_config)
 
     queries = list()
     for name, query in build_query.items():
-        queries.append(sqlite.sql_item('DROP TABLE IF EXISTS {}'.format(name)))
-        queries.append(sqlite.sql_item(query))
+        queries.append(sqlite.sql('DROP TABLE IF EXISTS {}'.format(name)))
+        queries.append(sqlite.sql(query))
 
-    queries.extend([sqlite.sql_item(state_insertion, item)
+    queries.extend([sqlite.sql(state_insertion, item.state, item.name)
                     for item in state_items])
 
     sqlite.execute_multiple_dml(queries)

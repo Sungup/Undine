@@ -84,12 +84,20 @@ class BaseNetworkDriver(BaseDriver):
     #
     # Private method
     #
-    def _make_params(self, tid):
-        return {'tid': tid, 'host': self._host.name, 'ip': self._host.ipv4}
+    def __params(self, tid, **kwargs):
+        return dict(tid=tid, host=self._host.name, ip=self._host.ipv4, **kwargs)
 
     @property
     def host(self):
         return self._host
+
+    @property
+    def _ip(self):
+        return self._host.ipv4
+
+    @property
+    def _hostname(self):
+        return self._host.name
 
     #
     # Protected inherited interface
@@ -97,16 +105,16 @@ class BaseNetworkDriver(BaseDriver):
     def _task(self, _tid):
         raise VirtualMethodException(self.__class__, '_task')
 
-    def _preempt(self, _info):
+    def _preempt(self, _tid, _host, _ip):
         raise VirtualMethodException(self.__class__, '_preempt')
 
-    def _done(self, _info, _content, _report):
+    def _done(self, _tid, _host, _ip, _content, _report):
         raise VirtualMethodException(self.__class__, '_done')
 
-    def _cancel(self, _info):
+    def _cancel(self, _tid, _host, _ip):
         raise VirtualMethodException(self.__class__, '_cancel')
 
-    def _fail(self, _info, _message):
+    def _fail(self, _tid, _host, _ip, _message):
         raise VirtualMethodException(self.__class__, '_fail')
 
     def _logged_in(self):
@@ -122,16 +130,16 @@ class BaseNetworkDriver(BaseDriver):
         return self._task(json.loads(self._queue.consume())['tid'])
 
     def preempt(self, tid):
-        return self._preempt(self._make_params(tid))
+        return self._preempt(**self.__params(tid))
 
     def done(self, tid, content, report):
-        return self._done(self._make_params(tid), content, report)
+        return self._done(**self.__params(tid, content=content, report=report))
 
     def cancel(self, tid):
-        return self._cancel(self._make_params(tid))
+        return self._cancel(**self.__params(tid))
 
     def fail(self, tid, message):
-        return self._fail(self._make_params(tid), message)
+        return self._fail(**self.__params(tid, message=message))
 
     def is_ready(self):
         return True

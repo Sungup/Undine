@@ -50,47 +50,45 @@ class SQLiteDriver(BaseDriver):
                         reportable=bool(row[4]))
 
     def config(self, cid):
-        row = self._sqlite.fetch_a_tuple(self._QUERY['config'], (cid, ))
+        row = self._sqlite.fetch_a_tuple(self._QUERY['config'], cid)
 
         return ConfigInfo(cid=row[0], name=row[1], config=row[2],
                           dir=self._config_dir,
                           ext=self._config_ext)
 
     def worker(self, wid):
-        row = self._sqlite.fetch_a_tuple(self._QUERY['worker'], (wid, ))
+        row = self._sqlite.fetch_a_tuple(self._QUERY['worker'], wid)
 
         return WorkerInfo(wid=row[0], dir=row[1], cmd=row[2], arguments=row[3])
 
     def inputs(self, iid):
-        row = self._sqlite.fetch_a_tuple(self._QUERY['input'], (iid, ))
+        row = self._sqlite.fetch_a_tuple(self._QUERY['input'], iid)
 
         return InputInfo(iid=row[0], name=row[1], items=row[2])
 
     def preempt(self, tid):
-        self._sqlite.execute_single_dml(self._QUERY['preempt'], (tid,))
+        self._sqlite.execute_single_dml(self._QUERY['preempt'], tid)
 
         return True
 
     def done(self, tid, content, report):
-        item = {'tid': tid, 'content': content}
-
-        queries = [self._sqlite.SQLItem(self._QUERY['done'], (tid,))]
+        queries = [self._sqlite.sql(self._QUERY['done'], tid)]
 
         if report:
-            queries.append(self._sqlite.SQLItem(self._QUERY['result'], item))
+            queries.append(self._sqlite.sql(self._QUERY['result'],
+                                            tid=tid, content=content))
 
         self._sqlite.execute_multiple_dml(queries)
 
         return True
 
     def cancel(self, tid):
-        self._sqlite.execute_single_dml(self._QUERY['cancel'], (tid,))
+        self._sqlite.execute_single_dml(self._QUERY['cancel'], tid)
 
     def fail(self, tid, message):
-        item = {'tid': tid, 'message': message}
-
-        queries = [self._sqlite.SQLItem(self._QUERY['fail'], (tid,)),
-                   self._sqlite.SQLItem(self._QUERY['error'], item)]
+        queries = [self._sqlite.sql(self._QUERY['fail'], tid),
+                   self._sqlite.sql(self._QUERY['error'],
+                                    tid=tid, message=message)]
 
         self._sqlite.execute_multiple_dml(queries)
 

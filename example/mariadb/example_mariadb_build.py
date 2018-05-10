@@ -143,10 +143,16 @@ def db_build(rabbitmq_config, mariadb_config):
       ORDER BY h.ip ASC
     '''
 
-    state_insertion = 'INSERT INTO state_type VALUES (%s, %s)'
+    # State Initialization
+    state_dml = 'INSERT INTO state_type VALUES (%s, %s)'
 
-    state_items = [('R', 'ready'), ('I', 'issued'), ('D', 'done'),
-                   ('C', 'canceled'), ('F', 'failed')]
+    StateType = namedtuple('StateType', ['state', 'name'])
+
+    state_items = [StateType('R', 'ready'),
+                   StateType('I', 'issued'),
+                   StateType('D', 'done'),
+                   StateType('C', 'canceled'),
+                   StateType('F', 'failed')]
 
     # 0. Connect to server
     #
@@ -157,15 +163,15 @@ def db_build(rabbitmq_config, mariadb_config):
 
     queries = list()
     for name, query in create_table.items():
-        queries.append(mariadb.sql_item('DROP TABLE IF EXISTS {}'.format(name)))
-        queries.append(mariadb.sql_item(query))
+        queries.append(mariadb.sql('DROP TABLE IF EXISTS {}'.format(name)))
+        queries.append(mariadb.sql(query))
 
-    queries.extend([mariadb.sql_item(state_insertion, item)
+    queries.extend([mariadb.sql(state_dml, item.state, item.name)
                     for item in state_items])
 
-    queries.append(mariadb.sql_item(dashboard_view))
-    queries.append(mariadb.sql_item(task_list_view))
-    queries.append(mariadb.sql_item(host_list_view))
+    queries.append(mariadb.sql(dashboard_view))
+    queries.append(mariadb.sql(task_list_view))
+    queries.append(mariadb.sql(host_list_view))
 
     mariadb.execute_multiple_dml(queries)
 

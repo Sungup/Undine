@@ -68,72 +68,66 @@ class MariaDbDriver(BaseNetworkDriver):
     # Inherited methods
     #
     def config(self, cid):
-        row = self._mariadb.fetch_a_tuple(self._QUERY['config'], (cid, ))
+        row = self._mariadb.fetch_a_tuple(self._QUERY['config'], cid)
 
         return ConfigInfo(cid=row[0], name=row[1], config=row[2],
                           dir=self._config_dir,
                           ext=self._config_ext)
 
     def worker(self, wid):
-        row = self._mariadb.fetch_a_tuple(self._QUERY['worker'], (wid, ))
+        row = self._mariadb.fetch_a_tuple(self._QUERY['worker'], wid)
 
         return WorkerInfo(wid=row[0], dir=row[1], cmd=row[2], arguments=row[3])
 
     def inputs(self, iid):
-        row = self._mariadb.fetch_a_tuple(self._QUERY['input'], (iid, ))
+        row = self._mariadb.fetch_a_tuple(self._QUERY['input'], iid)
 
         return InputInfo(iid=row[0], name=row[1], items=row[2])
 
     def _task(self, tid):
-        row = self._mariadb.fetch_a_tuple(self._QUERY['task'], (tid, ))
+        row = self._mariadb.fetch_a_tuple(self._QUERY['task'], tid)
 
         return TaskInfo(tid=row[0], cid=row[1], iid=row[2], wid=row[3],
                         reportable=row[4])
 
-    def _preempt(self, info):
-        info['state'] = 'I'
-
-        self._mariadb.execute_single_dml(self._QUERY['state'], info)
+    def _preempt(self, tid, host, ip):
+        self._mariadb.execute_single_dml(self._QUERY['state'],
+                                         tid=tid, host=host, ip=ip, state='I')
 
         return True
 
-    def _done(self, info, content, report):
-        info['state'] = 'D'
-        item = {'tid': info['tid'], 'content': content}
-
-        queries = [self._mariadb.SQLItem(self._QUERY['state'], info)]
+    def _done(self, tid, host, ip, content, report):
+        queries = [self._mariadb.sql(self._QUERY['state'],
+                                     tid=tid, host=host, ip=ip, state='D')]
 
         if report:
-            queries.append(self._mariadb.SQLItem(self._QUERY['result'], item))
+            queries.append(self._mariadb.sql(self._QUERY['result'],
+                                             tid=tid, content=content))
 
         self._mariadb.execute_multiple_dml(queries)
 
         return True
 
-    def _cancel(self, info):
-        info['state'] = 'C'
-        self._mariadb.execute_single_dml(self._QUERY['state'], info)
+    def _cancel(self, tid, host, ip):
+        self._mariadb.execute_single_dml(self._QUERY['state'],
+                                         tid=tid, host=host, ip=ip, state='C')
 
-    def _fail(self, info, message):
-        info['state'] = 'F'
-        item = {'tid': info['tid'], 'message': message}
-
-        queries = [self._mariadb.SQLItem(self._QUERY['state'], info),
-                   self._mariadb.SQLItem(self._QUERY['error'], item)]
+    def _fail(self, tid, host, ip, message):
+        queries = [self._mariadb.sql(self._QUERY['state'],
+                                     tid=tid, host=host, ip=ip, state='F'),
+                   self._mariadb.sql(self._QUERY['error'],
+                                     tid=tid, message=message)]
 
         self._mariadb.execute_multiple_dml(queries)
 
-        self._error_logging('tid({0})'.format(info['tid']), message)
+        self._error_logging('tid({0})'.format(tid), message)
 
     def _logged_in(self):
-        host = {'ip': self.host.ipv4, 'name': self.host.name}
-
-        queries = [self._mariadb.SQLItem(self._QUERY['cleanup'], host),
-                   self._mariadb.SQLItem(self._QUERY['login'], host)]
+        queries = [self._mariadb.sql(self._QUERY['cleanup'], ip=self._ip),
+                   self._mariadb.sql(self._QUERY['login'],
+                                     ip=self._ip, name=self._hostname)]
 
         self._mariadb.execute_multiple_dml(queries)
 
     def _logged_out(self):
-        host = {'ip': self.host.ipv4}
-
-        self._mariadb.execute_single_dml(self._QUERY['logout'], host)
+        self._mariadb.execute_single_dml(self._QUERY['logout'], ip=self._ip)
