@@ -9,22 +9,19 @@ class MariaDbClient(BaseClient):
         'mission_list': '''
           SELECT mid, name, email,
                  ready, issued, done, canceled, failed, 
-                 DATE_FORMAT(issued_at, '%Y-%m-%d %T') AS issued
-            FROM mission_dashboard {where}
+                 issued_at AS issued
+            FROM mission_dashboard %s
         ORDER BY complete, issued_at DESC
         ''',
         'mission_info': '''
-          SELECT HEX(mid) AS mid, name, email, description,
-                 DATE_FORMAT(issued, '%Y-%m-%d %T')
-            FROM mission {where}
+          SELECT HEX(mid) AS mid, name, email, description, issued
+            FROM mission %s
         ORDER BY issued ASC
         ''',
         'task_list': '''
-          SELECT tid, name, host, ip, state,
-                 DATE_FORMAT(issued, '%Y-%m-%d %T') AS issued,
-                 DATE_FORMAT(updated, '%Y-%m-%d %T') AS updated,
+          SELECT tid, name, host, ip, state, issued, updated,
                  IF(reportable = TRUE, 'true', 'false') AS reportable
-            FROM task_list {where}
+            FROM task_list %s
         ORDER BY issued ASC
         ''',
         'task_info': '''
@@ -32,15 +29,12 @@ class MariaDbClient(BaseClient):
                  t.host, INET_NTOA(t.ip) AS ip, s.name AS state,
                  HEX(t.mid) AS mid,
                  HEX(t.cid) AS cid, HEX(t.iid) AS iid, HEX(t.wid) AS wid,
-                 DATE_FORMAT(t.issued, '%Y-%m-%d %T') AS issued,
-                 DATE_FORMAT(t.updated, '%Y-%m-%d %T') AS updated,
+                 t.issued, t.updated,
                  IF(t.reportable = TRUE, 'true', 'false') AS reportable,
                  IF(r.content IS NOT NULL, r.content, '-') AS result,
-                 IF(r.reported IS NOT NULL,
-                    DATE_FORMAT(r.reported, '%Y-%m-%d %T'), '-') AS succeed,
+                 IF(r.reported IS NOT NULL, r.reported, '-') AS succeed,
                  IF(e.message IS NOT NULL, e.message, '-') AS error,
-                 IF(e.informed IS NOT NULL,
-                    DATE_FORMAT(e.informed, '%Y-%m-%d %T'), '-') AS failed 
+                 IF(e.informed IS NOT NULL, e.informed, '-') AS failed 
             FROM task AS t
             JOIN state_type AS s ON t.state = s.state
             LEFT JOIN result r ON t.tid = r.tid
@@ -48,21 +42,18 @@ class MariaDbClient(BaseClient):
            WHERE t.tid = UNHEX(%(tid)s)
         ''',
         'config_info': '''
-          SELECT HEX(cid) AS cid, name, config,
-                 DATE_FORMAT(issued, '%Y-%m-%d %T') AS issued
+          SELECT HEX(cid) AS cid, name, config, issued
             FROM config
            WHERE cid = UNHEX(%(cid)s)
         ''',
         'input_info': '''
-          SELECT HEX(iid) AS iid, name, items,
-                 DATE_FORMAT(issued, '%Y-%m-%d %T') AS issued
-            FROM input {where}
+          SELECT HEX(iid) AS iid, name, items, issued
+            FROM input %s
         ORDER BY issued
         ''',
         'worker_info': '''
-          SELECT HEX(wid) AS wid, name, command, arguments, worker_dir,
-                 DATE_FORMAT(issued, '%Y-%m-%d %T') AS issued
-            FROM worker {where}
+          SELECT HEX(wid) AS wid, name, command, arguments, worker_dir, issued
+            FROM worker %s
         ORDER BY issued
         ''',
         'host_list': '''
@@ -70,31 +61,30 @@ class MariaDbClient(BaseClient):
                  registered, logged_in, logged_out, state
             FROM host_list
         ''',
-        'reset_list': '''
-          SELECT HEX(tid), HEX(cid), HEX(iid), HEX(wid) 
-            FROM task 
-           WHERE tid in (SELECT tid FROM task {where})
+
+        'tid_list': '''
+          SELECT HEX(tid) FROM task %s
         ''',
         'trash_result': '''
           INSERT INTO trash (tid, generated, category, content)
           SELECT tid, reported, 'result', content FROM result
-           WHERE tid = UNHEX(%(tid)s)
+           WHERE tid IN (%s)
         ''',
         'trash_error': '''
           INSERT INTO trash (tid, generated, category, content)
           SELECT tid, informed, 'error', message FROM error
-           WHERE tid = UNHEX(%(tid)s)
+           WHERE tid IN (%s)
         ''',
         'delete_result': '''
-          DELETE FROM result WHERE tid = UNHEX(%(tid)s)
+          DELETE FROM result WHERE tid IN (%s)
         ''',
         'delete_error': '''
-          DELETE FROM error WHERE tid = UNHEX(%(tid)s)
+          DELETE FROM error WHERE tid IN (%s)
         ''',
-        'reset_task': '''
+        'cancel_task': '''
           UPDATE task
-             SET state = 'R', host = NULL, ip = NULL
-           WHERE tid = UNHEX(%(tid)s)
+             SET state = 'C', host = NULL, ip = NULL
+           WHERE tid IN (%s)
         '''
     }
 
@@ -102,6 +92,7 @@ class MariaDbClient(BaseClient):
 
     _WHERE_CLAUSE = {
         'mid': _WhereItem('mid = UNHEX(%(mid)s)', '{}'),
+        'tid': _WhereItem('mid = UNHEX(%(tid)s)', '{}'),
         'cid': _WhereItem('cid = UNHEX(%(cid)s)', '{}'),
         'iid': _WhereItem('iid = UNHEX(%(iid)s)', '{}'),
         'wid': _WhereItem('wid = UNHEX(%(wid)s)', '{}'),
@@ -130,7 +121,7 @@ class MariaDbClient(BaseClient):
     def __where(condition):
         return 'WHERE ' + ' AND '.join(condition) if condition else ''
 
-    def __build_query(self, template, **kwargs):
+    def __query(self, template, **kwargs):
         where = list()
         params = dict()
 
@@ -141,33 +132,29 @@ class MariaDbClient(BaseClient):
 
         where = self.__where(where)
 
-        return dict(query=self._QUERY[template].format(where=where), **params)
-
-    def __build_sql_item(self, template, **kwargs):
-        return self._db.sql(**self.__build_query(template, **kwargs))
+        return dict(query=self._QUERY[template] % where, **params)
 
     #
     # Inherited methods
     #
     def mission_list(self, list_all=False):
         where = 'WHERE complete = FALSE' if not list_all else ''
-        query = self._QUERY['mission_list'].format(where=where)
 
-        return self._db.fetch_all_tuples(query)
+        return self._db.fetch_all_tuples(self._QUERY['mission_list'] % where)
 
     def mission_info(self, **kwargs):
         if 'mid' in kwargs and len(kwargs['mid']) != 32:
             raise UndineException('MID value must feat to uuid length.')
 
-        return self._db.fetch_all_tuples(**self.__build_query('mission_info',
-                                                              **kwargs))
+        query = self.__query('mission_info', **kwargs)
+
+        return self._db.fetch_all_tuples(**query)
 
     def task_list(self, **kwargs):
         if 'mid' not in kwargs or len(kwargs['mid']) != 32:
             raise UndineException('MID value must feat to uuid length.')
 
-        return self._db.fetch_all_tuples(**self.__build_query('task_list',
-                                                              **kwargs))
+        return self._db.fetch_all_tuples(**self.__query('task_list', **kwargs))
 
     def task_info(self, tid):
         if len(tid) != 32:
@@ -185,37 +172,32 @@ class MariaDbClient(BaseClient):
         if len(iid) != 32:
             raise UndineException('IID value must feat to uuid length.')
 
-        return self._db.fetch_a_tuple(**self.__build_query('input_info',
-                                                           iid=iid))
+        return self._db.fetch_a_tuple(**self.__query('input_info', iid=iid))
 
     def input_list(self):
-        return self._db.fetch_all_tuples(**self.__build_query('input_info'))
+        return self._db.fetch_all_tuples(**self.__query('input_info'))
 
     def worker_info(self, wid):
         if len(wid) != 32:
             raise UndineException('WID value must feat to uuid length.')
 
-        return self._db.fetch_a_tuple(**self.__build_query('worker_info',
-                                                           wid=wid))
+        return self._db.fetch_a_tuple(**self.__query('worker_info', wid=wid))
 
     def worker_list(self):
-        return self._db.fetch_all_tuples(**self.__build_query('worker_info'))
+        return self._db.fetch_all_tuples(**self.__query('worker_info'))
 
     def host_list(self):
-        return self._db.fetch_all_tuples(**self.__build_query('host_list'))
+        return self._db.fetch_all_tuples(**self.__query('host_list'))
 
-    # TODO will be deprecated
-    def _reset_list(self, **kwargs):
-        return self._db.fetch_all_tuples(**self.__build_query('reset_list',
-                                                              **kwargs))
+    def _tid_list(self, **kwargs):
+        return self._db.fetch_all_tuples(**self.__query('tid_list', **kwargs))
 
-    # TODO will be deprecated
-    def _reset_task(self, tid):
-        # Build 5 reset queries
+    def _cancel_task(self, *args):
+        where = ", ".join(("UNHEX(%s)",) * len(args))
         queries = [
-            self.__build_sql_item(name, tid=tid)
+            self._db.sql(self._QUERY[name] % where, *args)
             for name in ('trash_result', 'trash_error',
-                         'delete_result', 'delete_error', 'reset_task')
+                         'delete_result', 'delete_error', 'cancel_task')
         ]
 
         self._db.execute_multiple_dml(queries)

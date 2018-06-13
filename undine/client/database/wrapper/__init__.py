@@ -33,3 +33,9 @@ class BaseWrapper(BaseClient):
 
     def rpc_call(self, ip, command, *args, **kwargs):
         return self._connector.rpc_call(ip, command, *args, **kwargs)
+
+    def _tid_list(self, **kwargs):
+        return self._connector.inner_tid_list(**kwargs)
+
+    def _cancel_task(self, *args):
+        return self._connector.inner_cancel_task(*args)

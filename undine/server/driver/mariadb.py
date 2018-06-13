@@ -9,7 +9,7 @@ class MariaDbDriver(BaseNetworkDriver):
         'task': '''
             SELECT HEX(tid), HEX(cid), HEX(iid), HEX(wid), reportable
               FROM task 
-             WHERE tid = UNHEX(%s)
+             WHERE tid = UNHEX(%s) AND state = 'R'
         ''',
         'config': '''
             SELECT HEX(cid), name, config FROM config
@@ -87,8 +87,9 @@ class MariaDbDriver(BaseNetworkDriver):
     def _task(self, tid):
         row = self._mariadb.fetch_a_tuple(self._QUERY['task'], tid)
 
+        # Only return 'Ready' state task. Other case return None
         return TaskInfo(tid=row[0], cid=row[1], iid=row[2], wid=row[3],
-                        reportable=row[4])
+                        reportable=row[4]) if row else None
 
     def _preempt(self, tid, host, ip):
         self._mariadb.execute_single_dml(self._QUERY['state'],

@@ -93,11 +93,10 @@ class TaskScheduler:
         # ==================================================
         # TODO Check thread table is useful.
         self._ticket = Queue()
-        self._thread = list()
+        self._thread = dict()
 
         for thread_id in range(0, self._workers):
             self._ticket.put(thread_id)
-            self._thread.append(None)
         # ==================================================
 
     @property
@@ -121,15 +120,16 @@ class TaskScheduler:
 
         # ==================================================
         # TODO Check thread table is useful.
-        worker_id = self._ticket.get()
+        thread_id = self._ticket.get()
 
-        if self._thread[worker_id]:
-            self._thread[worker_id].join()
+        if thread_id in self._thread:
+            self._thread[thread_id].join()
+            del self._thread[thread_id]
 
         thread = Thread(target=TaskScheduler._procedure,
-                        args=(self, task, worker_id))
+                        args=(self, task, thread_id))
 
-        self._thread[worker_id] = thread
+        self._thread[thread_id] = thread
         # ==================================================
         # else condition method
         # thread = Thread(target=TaskScheduler._procedure, args=(self, task))
