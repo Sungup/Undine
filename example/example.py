@@ -66,7 +66,7 @@ class Example:
         return string
 
     @staticmethod
-    def _parse(options = _OPTIONS):
+    def _parse(options):
         """ Arguments parsing method
 
         :param options: List of Example.Option tuple object.
@@ -87,7 +87,7 @@ class Example:
     def __init__(self):
         """ Constructor
         """
-        self._config = self._parse()
+        self._config = self._parse(self._OPTIONS)
 
         self._config_file = self._config.config_file
         self._result_file = self._config.result_file

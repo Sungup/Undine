@@ -7,36 +7,36 @@ from undine.database.mariadb import MariaDbConnector
 class MariaDbDriver(BaseNetworkDriver):
     _QUERY = {
         'task': '''
-            SELECT HEX(tid), HEX(cid), HEX(iid), HEX(wid), reportable
+            SELECT tid, cid, iid, wid, reportable
               FROM task 
-             WHERE tid = UNHEX(%s) AND state = 'R'
+             WHERE tid = %s AND state = 'R'
         ''',
         'config': '''
-            SELECT HEX(cid), name, config FROM config
-             WHERE cid = UNHEX(%s)
+            SELECT cid, name, config FROM config
+             WHERE cid = %s
         ''',
         'worker': '''
-            SELECT HEX(wid), worker_dir, command, arguments
+            SELECT wid, worker_dir, command, arguments
               FROM worker
-             WHERE wid = UNHEX(%s)
+             WHERE wid = %s
         ''',
         'input': '''
-            SELECT HEX(iid), name, items
+            SELECT iid, name, items
               FROM input
-             WHERE iid = UNHEX(%s)
+             WHERE iid = %s
         ''',
         'state': '''
             UPDATE task 
                SET state = %(state)s, host = %(host)s, ip = INET_ATON(%(ip)s)
-             WHERE tid = UNHEX(%(tid)s)
+             WHERE tid = %(tid)s
         ''',
         'result': '''
             INSERT INTO result(tid, content)
-                 VALUES (UNHEX(%(tid)s), %(content)s)
+                 VALUES (%(tid)s, %(content)s)
         ''',
         'error': '''
             INSERT INTO error(tid, message)
-                 VALUES (UNHEX(%(tid)s), %(message)s)
+                 VALUES (%(tid)s, %(message)s)
         ''',
         'cleanup': '''
             UPDATE task

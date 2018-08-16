@@ -6,27 +6,27 @@ class MariaDbClient(BaseNetworkClient):
     _QUERY = {
         'mission': '''
             INSERT INTO mission(mid, name, email, description)
-            VALUES(UNHEX(%(mid)s), %(name)s, %(email)s, %(description)s)
+            VALUES(%(mid)s, %(name)s, %(email)s, %(description)s)
         ''',
         'task': '''
             INSERT INTO task(tid, name, cid, iid, wid, mid, reportable)
-            VALUES(UNHEX(%(tid)s), %(name)s,
-                   UNHEX(%(cid)s), UNHEX(%(iid)s),
-                   UNHEX(%(wid)s), UNHEX(%(mid)s),
+            VALUES(%(tid)s, %(name)s,
+                   %(cid)s, %(iid)s,
+                   %(wid)s, %(mid)s,
                    %(reportable)s)
         ''',
         'worker': '''
             INSERT INTO worker(wid, name, command, arguments, worker_dir)
-            VALUES(UNHEX(%(wid)s), %(name)s, %(command)s,
+            VALUES(%(wid)s, %(name)s, %(command)s,
                    %(arguments)s, %(worker_dir)s)
         ''',
         'input': '''
             INSERT INTO input(iid, name, items)
-            VALUES(UNHEX(%(iid)s), %(name)s, %(items)s)
+            VALUES(%(iid)s, %(name)s, %(items)s)
         ''',
         'config': '''
             INSERT INTO config(cid, name, config)
-            VALUES (UNHEX(%(cid)s), %(name)s, %(config)s)
+            VALUES (%(cid)s, %(name)s, %(config)s)
         '''
     }
 
