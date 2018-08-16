@@ -20,7 +20,7 @@ def db_build(rabbitmq_config, mariadb_config):
         ''',
         'mission': '''
             CREATE TABLE IF NOT EXISTS mission (
-                mid BINARY(16) PRIMARY KEY,
+                mid CHAR(32) PRIMARY KEY,
                 name TEXT,
                 email TEXT,
                 description TEXT,
@@ -29,7 +29,7 @@ def db_build(rabbitmq_config, mariadb_config):
         ''',
         'config': '''
             CREATE TABLE IF NOT EXISTS config (
-                cid BINARY(16) PRIMARY KEY, 
+                cid CHAR(32) PRIMARY KEY, 
                 name TEXT,
                 config TEXT,
                 issued DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -37,7 +37,7 @@ def db_build(rabbitmq_config, mariadb_config):
         ''',
         'input': '''
             CREATE TABLE IF NOT EXISTS input (
-                iid BINARY(16) PRIMARY KEY,
+                iid CHAR(32) PRIMARY KEY,
                 name TEXT,
                 items TEXT,
                 issued DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -45,18 +45,18 @@ def db_build(rabbitmq_config, mariadb_config):
         ''',
         'worker': '''
             CREATE TABLE IF NOT EXISTS worker
-            (wid BINARY(16) PRIMARY KEY, name TEXT, command TEXT,
+            (wid CHAR(32) PRIMARY KEY, name TEXT, command TEXT,
              arguments TEXT, worker_dir TEXT,
              issued DATETIME DEFAULT CURRENT_TIMESTAMP)
         ''',
         'task': '''
             CREATE TABLE IF NOT EXISTS task (
-                tid BINARY(16) PRIMARY KEY, 
+                tid CHAR(32) PRIMARY KEY, 
                 name TEXT,
-                cid BINARY(16) NOT NULL REFERENCES config(cid),
-                iid BINARY(16) NOT NULL REFERENCES input(iid),
-                wid BINARY(16) NOT NULL REFERENCES worker(wid),
-                mid BINARY(16) DEFAULT(NULL) REFERENCES mission(mid),
+                cid CHAR(32) NOT NULL REFERENCES config(cid),
+                iid CHAR(32) NOT NULL REFERENCES input(iid),
+                wid CHAR(32) NOT NULL REFERENCES worker(wid),
+                mid CHAR(32) DEFAULT(NULL) REFERENCES mission(mid),
                 issued DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME ON UPDATE CURRENT_TIMESTAMP,
                 host VARCHAR(255),
@@ -70,14 +70,14 @@ def db_build(rabbitmq_config, mariadb_config):
         ''',
         'result': '''
             CREATE TABLE IF NOT EXISTS result (
-                tid BINARY(16) NOT NULL PRIMARY KEY REFERENCES task(tid),
+                tid CHAR(32) NOT NULL PRIMARY KEY REFERENCES task(tid),
                 reported DATETIME DEFAULT CURRENT_TIMESTAMP,
                 content TEXT
             )
         ''',
         'error': '''
             CREATE TABLE IF NOT EXISTS error (
-                tid BINARY(16) NOT NULL PRIMARY KEY REFERENCES task(tid),
+                tid CHAR(32) NOT NULL PRIMARY KEY REFERENCES task(tid),
                 informed DATETIME DEFAULT CURRENT_TIMESTAMP,
                 message TEXT
             )
@@ -94,7 +94,7 @@ def db_build(rabbitmq_config, mariadb_config):
         'trash': '''
             CREATE TABLE IF NOT EXISTS trash (
                 id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                tid BINARY(16) NOT NULL REFERENCES task(tid),
+                tid CHAR(32) NOT NULL REFERENCES task(tid),
                 generated DATETIME NOT NULL,
                 trashed DATETIME DEFAULT CURRENT_TIMESTAMP,
                 category VARCHAR(16) NOT NULL,
@@ -105,7 +105,7 @@ def db_build(rabbitmq_config, mariadb_config):
 
     dashboard_view = '''
         CREATE OR REPLACE VIEW mission_dashboard AS
-        SELECT HEX(m.mid) AS mid, m.name, m.email, m.description,
+        SELECT m.mid, m.name, m.email, m.description,
                COUNT(CASE WHEN t.state = 'R' THEN 1 END) AS ready,
                COUNT(CASE WHEN t.state = 'I' THEN 1 END) AS issued,
                COUNT(CASE WHEN t.state = 'D' THEN 1 END) AS done,
@@ -121,7 +121,7 @@ def db_build(rabbitmq_config, mariadb_config):
 
     task_list_view = '''
         CREATE OR REPLACE VIEW task_list AS
-        SELECT t.mid, HEX(tid) AS tid, t.name, t.host, INET_NTOA(t.ip) as ip,
+        SELECT t.mid, t.tid, t.name, t.host, INET_NTOA(t.ip) as ip,
                t.issued, t.updated, s.name AS state, t.reportable,
                t.cid, t.iid, t.wid
           FROM task AS t, state_type s

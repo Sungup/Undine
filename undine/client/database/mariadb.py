@@ -14,7 +14,7 @@ class MariaDbClient(BaseClient):
         ORDER BY complete, issued_at DESC
         ''',
         'mission_info': '''
-          SELECT HEX(mid) AS mid, name, email, description, issued
+          SELECT mid, name, email, description, issued
             FROM mission %s
         ORDER BY issued ASC
         ''',
@@ -25,10 +25,10 @@ class MariaDbClient(BaseClient):
         ORDER BY issued ASC
         ''',
         'task_info': '''
-          SELECT HEX(t.tid) AS tid, t.name AS name,
+          SELECT t.tid AS tid, t.name AS name,
                  t.host, INET_NTOA(t.ip) AS ip, s.name AS state,
-                 HEX(t.mid) AS mid,
-                 HEX(t.cid) AS cid, HEX(t.iid) AS iid, HEX(t.wid) AS wid,
+                 t.mid AS mid,
+                 t.cid AS cid, t.iid AS iid, t.wid AS wid,
                  t.issued, t.updated,
                  IF(t.reportable = TRUE, 'true', 'false') AS reportable,
                  IF(r.content IS NOT NULL, r.content, '-') AS result,
@@ -39,31 +39,31 @@ class MariaDbClient(BaseClient):
             JOIN state_type AS s ON t.state = s.state
             LEFT JOIN result r ON t.tid = r.tid
             LEFT JOIN error e ON t.tid = e.tid
-           WHERE t.tid = UNHEX(%(tid)s)
+           WHERE t.tid = %(tid)s
         ''',
         'config_info': '''
-          SELECT HEX(cid) AS cid, name, config, issued
+          SELECT cid AS cid, name, config, issued
             FROM config
-           WHERE cid = UNHEX(%(cid)s)
+           WHERE cid = %(cid)s
         ''',
         'input_info': '''
-          SELECT HEX(iid) AS iid, name, items, issued
+          SELECT iid AS iid, name, items, issued
             FROM input %s
         ORDER BY issued
         ''',
         'worker_info': '''
-          SELECT HEX(wid) AS wid, name, command, arguments, worker_dir, issued
+          SELECT wid AS wid, name, command, arguments, worker_dir, issued
             FROM worker %s
         ORDER BY issued
         ''',
         'host_list': '''
           SELECT name, ip, issued, canceled, failed,
                  registered, logged_in, logged_out, state
-            FROM host_list
+            FROM host_list %s
         ''',
 
         'tid_list': '''
-          SELECT HEX(tid) FROM task %s
+          SELECT tid FROM task %s
         ''',
         'trash_result': '''
           INSERT INTO trash (tid, generated, category, content)
@@ -91,11 +91,11 @@ class MariaDbClient(BaseClient):
     _WhereItem = namedtuple('_WhereItem', ['clause', 'format'])
 
     _WHERE_CLAUSE = {
-        'mid': _WhereItem('mid = UNHEX(%(mid)s)', '{}'),
-        'tid': _WhereItem('mid = UNHEX(%(tid)s)', '{}'),
-        'cid': _WhereItem('cid = UNHEX(%(cid)s)', '{}'),
-        'iid': _WhereItem('iid = UNHEX(%(iid)s)', '{}'),
-        'wid': _WhereItem('wid = UNHEX(%(wid)s)', '{}'),
+        'mid': _WhereItem('mid = %(mid)s', '{}'),
+        'tid': _WhereItem('tid = %(tid)s', '{}'),
+        'cid': _WhereItem('cid = %(cid)s', '{}'),
+        'iid': _WhereItem('iid = %(iid)s', '{}'),
+        'wid': _WhereItem('wid = %(wid)s', '{}'),
         'name': _WhereItem('name LIKE %(name)s', '%{}%'),
         'host': _WhereItem('host LIKE %(host)s', '%{}%'),
         'email': _WhereItem('email LIKE %(email)s', '%{}%'),
@@ -193,7 +193,7 @@ class MariaDbClient(BaseClient):
         return self._db.fetch_all_tuples(**self.__query('tid_list', **kwargs))
 
     def _cancel_task(self, *args):
-        where = ", ".join(("UNHEX(%s)",) * len(args))
+        where = ", ".join(("%s",) * len(args))
         queries = [
             self._db.sql(self._QUERY[name] % where, *args)
             for name in ('trash_result', 'trash_error',
