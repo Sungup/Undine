@@ -1,22 +1,25 @@
 from datetime import datetime
 from time import sleep
+
+from undine.client.command.base_command import BaseCommand
 from undine.utils.exception import UndineException
 from undine.utils.system import System
 
 import curses
 
 
-class Dashboard:
+class Dashboard(BaseCommand):
     _TITLE = 'Undine Task Manager Dashboard'
 
     _HEADER = ('MID', 'Name', 'Email',
                'Ready', 'Issued', 'Done', 'Canceled', 'Failed', 'Issued')
 
     def __init__(self, config, connector):
-        self._connector = connector
+        super(self.__class__, self).__init__(config, connector)
+
         self._term = config.term
 
-        if config.json:
+        if config.form == 'json':
             raise UndineException("Dashboard doesn't support json option")
 
         host = System.host_info()

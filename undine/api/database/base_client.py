@@ -117,7 +117,7 @@ class BaseNetworkClient(BaseClient):
         # Insert useful task information into rabbitmq task queue
         del task['name'], task['mid'], task['reportable']
 
-        self._queue.publish(json.dumps(task))
+        self._queue.publish(json.dumps({'tid': task['tid']}))
 
         return task['tid']
 

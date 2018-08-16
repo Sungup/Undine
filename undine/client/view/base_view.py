@@ -1,7 +1,9 @@
-from undine.client.database.base_client import BaseClient
+from undine.client.core import Connector
+
+import abc
 
 
-class BaseWrapper(BaseClient):
+class BaseView(Connector):
     _HEADER = {
         'single_item': ('Field', 'Value'),
         'mission_list': ('MID', 'Name', 'Email',
@@ -23,19 +25,55 @@ class BaseWrapper(BaseClient):
     }
 
     def __init__(self, connector):
-        BaseClient.__init__(self)
-
         self._connector = connector
 
-    @property
-    def db_config(self):
-        return self._connector.db_config
-
+    #
+    # Common bypass methods
+    #
     def rpc_call(self, ip, command, *args, **kwargs):
         return self._connector.rpc_call(ip, command, *args, **kwargs)
 
-    def _tid_list(self, **kwargs):
-        return self._connector.inner_tid_list(**kwargs)
+    def cancel_tasks(self, *tasks, **kwargs):
+        return self._connector.cancel_tasks(*tasks, **kwargs)
 
-    def _cancel_task(self, *args):
-        return self._connector.inner_cancel_task(*args)
+    def drop_tasks(self, *tasks, **kwargs):
+        return self._connector.drop_tasks(*tasks, **kwargs)
+
+    def drop_mission(self, **kwargs):
+        return self._connector.drop_mission(**kwargs)
+
+    def rerun_tasks(self, *tasks, **kwargs):
+        return self._connector.rerun_tasks(*tasks, **kwargs)
+
+    #
+    # Abstract methods
+    #
+    @abc.abstractmethod
+    def mission_list(self, list_all=False): pass
+
+    @abc.abstractmethod
+    def mission_info(self, **kwargs): pass
+
+    @abc.abstractmethod
+    def task_list(self, **kwargs): pass
+
+    @abc.abstractmethod
+    def task_info(self, tid): pass
+
+    @abc.abstractmethod
+    def config_info(self, cid): pass
+
+    @abc.abstractmethod
+    def input_info(self, iid): pass
+
+    @abc.abstractmethod
+    def input_list(self): pass
+
+    @abc.abstractmethod
+    def worker_info(self, wid): pass
+
+    @abc.abstractmethod
+    def worker_list(self): pass
+
+    @abc.abstractmethod
+    def host_list(self): pass

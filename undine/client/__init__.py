@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from undine.client.command import CommandFactory
-from undine.client.database import ClientFactory
+from undine.client.connector import ConnectorFactory
+from undine.client.view import ViewFactory
 from undine.utils.exception import UndineException
 
 import json
@@ -18,9 +19,9 @@ class UndineClient:
                             default='config/client.json',
                             action='store', metavar='PATH')
 
-        parser.add_argument('-j', '--json', dest='json',
-                            help='Print json format',
-                            default=False, action='store_true')
+        parser.add_argument('-f', '--form', dest='form',
+                            help='Print format',
+                            choices=['json', 'table'], default='table')
 
         CommandFactory.add_subparsers(parser,
                                       dest='command',
@@ -29,8 +30,8 @@ class UndineClient:
         return parser.parse_args()
 
     def __init__(self, sub_command, config, connection):
-        self._connector = ClientFactory.create(connection,
-                                               json=config.json, cli=True)
+        conn = ConnectorFactory.create(connection)
+        self._connector = ViewFactory.create(config.form, conn)
 
         self._command = CommandFactory.get_command(sub_command, config,
                                                    self._connector)
