@@ -1,14 +1,20 @@
+from undine.client.command.base_command import BaseCommand
 
-class Mission:
+import re
+
+
+class Mission(BaseCommand):
     _DESC = {
         'list': 'Mission lists and tasks status lookup command.',
         'info': 'Detail mission information lookup command.',
-        'cancel': 'Cancel all tasks not yet started.'
+        'cancel': 'Cancel all tasks not yet started.',
+        'truncate': 'Remove all tasks in selected mission.',
+        'remove': 'Remove all tasks and mission information.',
+        'rerun': 'Rerun all tasks in selected mission.'
     }
 
     def __init__(self, config, connector):
-        self._connector = connector
-        self._config = config
+        super(self.__class__, self).__init__(config, connector)
 
     @staticmethod
     def help():
@@ -30,35 +36,58 @@ class Mission:
         _info = subparsers.add_parser('info',
                                       description=Mission._DESC['info'])
 
-        _info.add_argument('-m', '--mid', dest='mid',
-                           help='Mission ID (mid)', action='store')
-
-        _info.add_argument('-n', '--name', dest='name',
-                           help='Mission name', action='store')
-
-        _info.add_argument('-e', '--email', dest='email',
-                           help='Email address of issuer',
+        _info.add_argument('identifier', help='Mission ID or name',
                            action='store')
 
         # Mission cancel
         _cancel = subparsers.add_parser('cancel',
                                         description=Mission._DESC['cancel'])
+        _cancel.add_argument('identifier', help='Mission ID or name',
+                             action='store')
 
-        _cancel.add_argument('-m', '--mid', dest='mid',
-                             help='Mission ID (mid)', action='store')
+        # Truncate mission
+        _trunc = subparsers.add_parser('truncate',
+                                       description=Mission._DESC['truncate'])
+        _trunc.add_argument('identifier', help='Mission ID or name',
+                            action='store')
+
+        # Mission delete
+        _remove = subparsers.add_parser('remove',
+                                        description=Mission._DESC['remove'])
+        _remove.add_argument('identifier', help='Mission ID or name',
+                             action='store')
+
+        # Rerun all tasks in mission
+        _rerun = subparsers.add_parser('rerun',
+                                       description=Mission._DESC['rerun'])
+        _rerun.add_argument('identifier', help='Mission ID or name',
+                            action='store')
 
     def run(self):
         if self._config.sub_command == 'list':
             print(self._connector.mission_list(self._config.all))
 
         else:
-            where = {key: value
-                     for key, value in vars(self._config).items()
-                     if key in ['mid', 'name', 'email'] and value}
+            if not re.match(r'^(?:[0-9A-Fa-f]){32}$', self._config.identifier):
+                where = {'name': self._config.identifier}
+            else:
+                where = {'mid': self._config.identifier}
 
             if self._config.sub_command == 'info':
                 print(self._connector.mission_info(**where))
 
             elif self._config.sub_command == 'cancel':
-                number_of_task = self._connector.cancel_tasks(**where)
-                print('{} tasks has been canceled'.format(number_of_task))
+                total_tasks = self._connector.cancel_tasks(**where)
+                print('{} tasks has been canceled.'.format(total_tasks))
+
+            elif self._config.sub_command == 'truncate':
+                total_tasks = self._connector.drop_tasks(**where)
+                print('{} tasks has been removed.'.format(total_tasks))
+
+            elif self._config.sub_command == 'remove':
+                total_tasks = self._connector.drop_mission(**where)
+                print('{} tasks has been removed.'.format(total_tasks))
+
+            elif self._config.sub_command == 'rerun':
+                total_tasks = self._connector.rerun_tasks(**where)
+                print('{} tasks has been restart.'.format(total_tasks))

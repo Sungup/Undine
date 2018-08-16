@@ -1,5 +1,5 @@
 from mysql.connector.pooling import MySQLConnectionPool as MariaDBConnectionPool
-from undine.database.base import Database
+from undine.database import Database
 from undine.utils.exception import UndineException
 
 import mysql.connector as mariadb

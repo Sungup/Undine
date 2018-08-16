@@ -113,3 +113,4 @@ venv.bak/
 tmp/
 example/sqlite3/example.sqlite3
 example/sqlite3/example.sqlite3-journal
+example/functional

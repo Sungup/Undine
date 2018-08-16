@@ -1,17 +1,17 @@
+from undine.client.command.base_command import BaseCommand
 from undine.utils.exception import UndineException
 
 import json
 
 
-class Host:
+class Host(BaseCommand):
     _DESC = {
         'list': 'Host lists and its task status lookup command.',
         'state': 'Host state lookup command (supports json format only).'
     }
 
     def __init__(self, config, connector):
-        self._connector = connector
-        self._config = config
+        super(self.__class__, self).__init__(config, connector)
 
     #
     # Private methods

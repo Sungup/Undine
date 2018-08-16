@@ -1,15 +1,21 @@
 from terminaltables import AsciiTable
-from undine.client.database.wrapper import BaseWrapper
+from undine.client.view.base_view import BaseView
 
 
-class CliWrapper(BaseWrapper):
+#
+# Simple by viewer
+#
+class TableView(BaseView):
     def __init__(self, connector):
-        BaseWrapper.__init__(self, connector)
+        super(TableView, self).__init__(connector)
 
-    def single_table(self, header, data):
+    def __single_table(self, header, data):
         return AsciiTable([self._HEADER['single_item']]
                           + list(zip(header, data)))
 
+    #
+    # Abstract method
+    #
     def mission_list(self, list_all=False):
         table = AsciiTable([self._HEADER['mission_list']]
                            + self._connector.mission_list(list_all))
@@ -23,7 +29,8 @@ class CliWrapper(BaseWrapper):
         data = self._connector.mission_info(**kwargs)
 
         if len(data) == 1:
-            return self.single_table(self._HEADER['mission_info'], *data).table
+            return self.__single_table(self._HEADER['mission_info'],
+                                       *data).table
         elif data:
             return AsciiTable([self._HEADER['mission_info']] + data).table
         else:
@@ -34,24 +41,24 @@ class CliWrapper(BaseWrapper):
                           + self._connector.task_list(**kwargs)).table
 
     def task_info(self, tid):
-        return self.single_table(self._HEADER['task_info'],
-                                 self._connector.task_info(tid)).table
+        return self.__single_table(self._HEADER['task_info'],
+                                   self._connector.task_info(tid)).table
 
     def config_info(self, cid):
-        return self.single_table(self._HEADER['config_info'],
-                                 self._connector.config_info(cid)).table
+        return self.__single_table(self._HEADER['config_info'],
+                                   self._connector.config_info(cid)).table
 
     def input_info(self, iid):
-        return self.single_table(self._HEADER['input_info'],
-                                 self._connector.input_info(iid)).table
+        return self.__single_table(self._HEADER['input_info'],
+                                   self._connector.input_info(iid)).table
 
     def input_list(self):
         return AsciiTable([self._HEADER['input_info']]
                           + self._connector.input_list()).table
 
     def worker_info(self, wid):
-        return self.single_table(self._HEADER['worker_info'],
-                                 self._connector.worker_info(wid)).table
+        return self.__single_table(self._HEADER['worker_info'],
+                                   self._connector.worker_info(wid)).table
 
     def worker_list(self):
         return AsciiTable([self._HEADER['worker_info']]

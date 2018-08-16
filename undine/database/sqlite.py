@@ -1,5 +1,5 @@
 from threading import Lock
-from undine.database.base import Database
+from undine.database import Database
 
 import sqlite3
 
