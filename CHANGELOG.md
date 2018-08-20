@@ -2,17 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [v0.1.0]
 
-## Added
+### Added
+
+- Add commandline script `undine_cli.py` and `undine_svr.py` to run command 
+  simply.
+- Add command line functions. Cancel, remove and re-run.
+  - Task and mission command can support three commands.
+  - But, this sub-commands need to be optimized near future.
+- Add set-up document using docker environment on linux.
+
+### Changed
+
+- Change the database connector interface.
+  - Add `undine.database.base` as a interface of db connector.
+  - Now support the positional and key-word arguments.
+- Change abstract functions in `BaseNetworkDriver`
+- Change introduction pages.
+- Change the field type of uuid in mariadb from BINARY(16) to CHAR(32)
+  synchronizing with django based webapp.
+- Change relation ship between `client`, `wrapper`, and `connector`.
+  - Change name `client` to `connector` and `wrapper` to `view`.
+  - Change pattern to decorator pattern.
+- Apply ABC classes in `undine.database` and `undine.client`
+- Change published attribute to message queue using only tid.
+- Fix some bugs.
+
+### Removed
+- Remove and re-design reset tasks in command line.
+
+## [v0.0.7]
+
+### Added
 
 - Add host table and its manipulation features on `undine.server`
   - Move the ghost task, issued but not running, into cancel state at server 
     log in time.
   - Add host CLI command.
+  - Add reset task interface but not yet implemented.
 - Print host information on dashboard.
 
-## Changed
+### Changed
 
 - Refactoring some files and class names
   - Move `undine.driver` and `undine.rpc` into `undine.server`
@@ -190,7 +221,9 @@ All notable changes to this project will be documented in this file.
 - Add basic config file
   - `config/config.json`: Default configure file of Undine.
   
-[Unreleased]: /../compare/v0.0.6...HEAD
+[Unreleased]: /../compare/v0.1.0...HEAD
+[v0.1.0]: /../compare/v0.0.7...v0.1.0
+[v0.0.7]: /../compare/v0.0.6...v0.0.7
 [v0.0.6]: /../compare/v0.0.5...v0.0.6
 [v0.0.5]: /../compare/v0.0.4...v0.0.5
 [v0.0.4]: /../compare/v0.0.3...v0.0.4
