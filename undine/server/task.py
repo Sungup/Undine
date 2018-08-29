@@ -65,7 +65,13 @@ class Task:
 
         self._config_path = c_info.path
         self._result_path = Path.gen_file_path(dir_, t_info.tid, ext_)
-        self._input_list = i_info.inputs(kwargs.setdefault('input_dir', ''))
+
+        if self._worker.use_file_inputs:
+            input_dir = kwargs.setdefault('input_dir', None)
+        else:
+            input_dir = None
+
+        self._input_list = i_info.inputs(input_dir)
 
         # Result container
         self._message = None

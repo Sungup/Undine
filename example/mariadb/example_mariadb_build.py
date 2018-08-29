@@ -47,6 +47,7 @@ def db_build(rabbitmq_config, mariadb_config):
             CREATE TABLE IF NOT EXISTS worker
             (wid CHAR(32) PRIMARY KEY, name TEXT, command TEXT,
              arguments TEXT, worker_dir TEXT,
+             file_input BOOLEAN NOT NULL DEFAULT TRUE,
              issued DATETIME DEFAULT CURRENT_TIMESTAMP)
         ''',
         'task': '''
@@ -195,7 +196,8 @@ def data_filling(rabbitmq_config, mariadb_config):
     wid = client.publish_worker(name='worker1',
                                 command=worker['worker_command'],
                                 arguments=worker['worker_arguments'],
-                                worker_dir=worker['worker_dir'])
+                                worker_dir=worker['worker_dir'],
+                                file_input=True)
 
     # 3. Insert config
     config_items = dict()

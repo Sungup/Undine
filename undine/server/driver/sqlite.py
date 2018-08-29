@@ -12,8 +12,8 @@ class SQLiteDriver(BaseDriver):
                  "WHERE state = 'R' LIMIT 1",
         'config': "SELECT cid, name, config FROM config "
                   "WHERE cid = ?",
-        'worker': "SELECT wid, worker_dir, command, arguments FROM worker "
-                  "WHERE wid = ?",
+        'worker': "SELECT wid, worker_dir, command, arguments, file_input"
+                  "  FROM worker WHERE wid = ?",
         'input': "SELECT iid, name, items FROM input "
                  "WHERE iid = ?",
         'preempt': "UPDATE task SET state ='I' WHERE tid = ?",
@@ -59,7 +59,8 @@ class SQLiteDriver(BaseDriver):
     def worker(self, wid):
         row = self._sqlite.fetch_a_tuple(self._QUERY['worker'], wid)
 
-        return WorkerInfo(wid=row[0], dir=row[1], cmd=row[2], arguments=row[3])
+        return WorkerInfo(wid=row[0], dir=row[1], cmd=row[2],
+                          arguments=row[3], file_input=row[4])
 
     def inputs(self, iid):
         row = self._sqlite.fetch_a_tuple(self._QUERY['input'], iid)

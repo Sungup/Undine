@@ -5,12 +5,14 @@ from undine.database.sqlite import SQLiteConnector
 class SQLiteClient(BaseClient):
     _QUERY = {
         'task': '''
-            INSERT INTO task(tid, name, cid, iid, wid, reportable)
-            VALUES(:tid, :name, :cid, :iid, :wid, :reportable)
+            INSERT INTO task(tid, name, cid, iid, wid, reportable, state)
+            VALUES(:tid, :name, :cid, :iid, :wid, :reportable, 'R')
         ''',
         'worker': '''
-            INSERT INTO worker(wid, name, command, arguments, worker_dir)
-            VALUES(:wid, :name, :command, :arguments, :worker_dir)
+            INSERT INTO worker(wid, name, command, arguments,
+                               worker_dir, file_input)
+            VALUES(:wid, :name, :command,
+                   :arguments, :worker_dir, :file_input)
         ''',
         'input': '''
             INSERT INTO input(iid, name, items)

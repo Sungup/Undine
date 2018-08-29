@@ -5,28 +5,28 @@ from undine.database.mariadb import MariaDbConnector
 class MariaDbClient(BaseNetworkClient):
     _QUERY = {
         'mission': '''
-            INSERT INTO mission(mid, name, email, description)
-            VALUES(%(mid)s, %(name)s, %(email)s, %(description)s)
+            INSERT INTO mission(mid, name, email, description, issued)
+            VALUES(%(mid)s, %(name)s, %(email)s, %(description)s, NOW())
         ''',
         'task': '''
-            INSERT INTO task(tid, name, cid, iid, wid, mid, reportable)
-            VALUES(%(tid)s, %(name)s,
-                   %(cid)s, %(iid)s,
-                   %(wid)s, %(mid)s,
-                   %(reportable)s)
+            INSERT INTO task(tid, name, cid, iid, wid, mid,
+                             reportable, issued, updated, host, ip, state)
+            VALUES(%(tid)s, %(name)s, %(cid)s, %(iid)s, %(wid)s, %(mid)s,
+                   %(reportable)s, NOW(), NULL, NULL, NULL, 'R')
         ''',
         'worker': '''
-            INSERT INTO worker(wid, name, command, arguments, worker_dir)
+            INSERT INTO worker(wid, name, command, arguments,
+                               worker_dir, file_input, issued)
             VALUES(%(wid)s, %(name)s, %(command)s,
-                   %(arguments)s, %(worker_dir)s)
+                   %(arguments)s, %(worker_dir)s, %(file_input)s, NOW())
         ''',
         'input': '''
-            INSERT INTO input(iid, name, items)
-            VALUES(%(iid)s, %(name)s, %(items)s)
+            INSERT INTO input(iid, name, items, issued)
+            VALUES(%(iid)s, %(name)s, %(items)s, NOW())
         ''',
         'config': '''
-            INSERT INTO config(cid, name, config)
-            VALUES (%(cid)s, %(name)s, %(config)s)
+            INSERT INTO config(cid, name, config, issued)
+            VALUES (%(cid)s, %(name)s, %(config)s, NOW())
         '''
     }
 
