@@ -16,7 +16,7 @@ class MariaDbDriver(BaseNetworkDriver):
              WHERE cid = %s
         ''',
         'worker': '''
-            SELECT wid, worker_dir, command, arguments
+            SELECT wid, worker_dir, command, arguments, file_input
               FROM worker
              WHERE wid = %s
         ''',
@@ -77,7 +77,8 @@ class MariaDbDriver(BaseNetworkDriver):
     def worker(self, wid):
         row = self._mariadb.fetch_a_tuple(self._QUERY['worker'], wid)
 
-        return WorkerInfo(wid=row[0], dir=row[1], cmd=row[2], arguments=row[3])
+        return WorkerInfo(wid=row[0], dir=row[1], cmd=row[2],
+                          arguments=row[3], file_input=row[4])
 
     def inputs(self, iid):
         row = self._mariadb.fetch_a_tuple(self._QUERY['input'], iid)

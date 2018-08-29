@@ -33,13 +33,15 @@ class BaseClient:
     #
     # Public methods
     #
-    def publish_worker(self, name, command, arguments, worker_dir):
+    def publish_worker(self, name, command, arguments,
+                       worker_dir, file_input=True):
         worker = {
             'wid': self._get_uuid(),
             'name': name,
             'command': command,
             'arguments': arguments,
-            'worker_dir': worker_dir
+            'worker_dir': worker_dir,
+            'file_input': bool(file_input)
         }
 
         self._insert_worker(worker)

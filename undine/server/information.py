@@ -85,13 +85,17 @@ class InputInfo:
 
 
 class WorkerInfo:
-    _STRING_FORMAT = "{'wid':{0}, 'dir':'{1}', 'cmd':'{2}', 'arguments':'{3}'}"
+    _STRING_FORMAT = '''
+        {'wid':{0}, 'dir':'{1}', 'cmd':'{2}', 'arguments':'{3}', 
+        'file_input': '{4}'}
+    '''
 
     def __init__(self, **kwargs):
         self._wid = kwargs['wid']
         self._path = kwargs.setdefault('dir', '')
         self._cmd = kwargs['cmd']
         self._arguments = kwargs['arguments']
+        self._file_input = bool(kwargs.setdefault('file_input', True))
 
     def __str__(self):
         return self._STRING_FORMAT.format(self._wid, self._path, self._cmd,
@@ -112,6 +116,10 @@ class WorkerInfo:
     @property
     def argument(self):
         return self._arguments
+
+    @property
+    def use_file_inputs(self):
+        return self._file_input
 
 
 class TaskInfo:

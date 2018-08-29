@@ -12,6 +12,7 @@ class FileDriver(BaseDriver):
     _DEFAULT_WORKER_CMD = 'example.rb'
     _DEFAULT_WORKER_ARGS = '-c %C -r %R %I'
     _DEFAULT_WORKER_DIR = ''
+    _DEFAULT_WORKER_USE_FILE_ARGS = True
 
     #
     # Private/Protected methods
@@ -52,9 +53,12 @@ class FileDriver(BaseDriver):
         command = config.setdefault('worker_command', self._DEFAULT_WORKER_CMD)
         args = config.setdefault('worker_arguments', self._DEFAULT_WORKER_ARGS)
         directory = config.setdefault('worker_dir', self._DEFAULT_WORKER_DIR)
+        file_input = config.setdefault('worker_use_file_args',
+                                       self._DEFAULT_WORKER_USE_FILE_ARGS)
 
         self._worker = WorkerInfo(wid=self._DEFAULT_WORKER_ID,
-                                  dir=directory, cmd=command, arguments=args)
+                                  dir=directory, cmd=command,
+                                  arguments=args, file_input=file_input)
 
     def _build_task_matrix(self):
         # key: tid, value: TaskInfo

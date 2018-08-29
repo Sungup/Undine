@@ -17,7 +17,7 @@ def db_build(sqlite_config):
                     (iid TEXT PRIMARY KEY, name TEXT, items TEXT)''',
         'worker': '''CREATE TABLE IF NOT EXISTS worker
                      (wid TEXT PRIMARY KEY, name TEXT, command TEXT,
-                      arguments TEXT, worker_dir TEXT)''',
+                      arguments TEXT, worker_dir TEXT, file_input BOOL)''',
         'task': '''CREATE TABLE IF NOT EXISTS task
                    (tid TEXT PRIMARY KEY, name TEXT,
                     cid TEXT NOT NULL REFERENCES config(cid),
