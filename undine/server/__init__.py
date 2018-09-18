@@ -12,39 +12,25 @@ import os
 import json
 
 
-class ConfigParser:
-    Option = namedtuple('Options',
-                        ['short', 'long', 'dest', 'action', 'meta', 'help',
-                         'required'])
-    _OPTIONS = [
-        Option('-c', '--config', 'config_file', 'store', 'PATH',
-               'Config file path', True)
-    ]
+def __load_config():
+    _default = '/etc/aria/undine.json'
 
-    @staticmethod
-    def parse(options = _OPTIONS):
-        parser = ArgumentParser(description='Undine task manager.')
+    parser = ArgumentParser(description='Undine task manager.')
 
-        for item in options:
-            parser.add_argument(item.short, item.long, metavar=item.meta,
-                                dest=item.dest, action=item.action,
-                                help=item.help, required=item.required)
+    parser.add_argument('-c', '--config', dest='config_file', metavar='PATH',
+                        help='Config file path [default: '.format(_default),
+                        action='store', default=_default, required=True)
 
-        return parser.parse_args()
+    opts = parser.parse_args()
 
-    @staticmethod
-    def load_config():
-        config = ConfigParser.parse()
+    if not os.path.isfile(config.config_file):
+        raise UndineException('No such file at {}.'format(config.config_file))
 
-        if not os.path.isfile(config.config_file):
-            raise UndineException('No such config file at {}.'.format(
-                config.config_file))
-
-        return json.load(open(config.config_file, 'r'))
+    return json.load(open(config.config_file, 'r'))
 
 
 class TaskManager:
-    _DEFAULT_OPTS = {
+    __DEFAULTOPTS = {
         'config_dir': '/tmp/config',
         'result_dir': '/tmp/result',
         'result_ext': '.log',
@@ -54,57 +40,57 @@ class TaskManager:
     _DRIVER_ERR_MESSAGE = 'Driver configuration should be set in config file'
 
     def __init__(self, config):
-        self._config = self._default_opts(config['manager'])
+        self.__config = self.__default_opts(config['manager'])
 
         if 'driver' not in config:
-            raise UndineException(self._DRIVER_ERR_MESSAGE)
+            raise UndineException(self.__DRIVER_ERR_MESSAGE)
 
         rpc_config = config.setdefault('rpc', None)
         task_queue_config = config.setdefault('task_queue', None)
         scheduler_config = config.setdefault('scheduler', dict())
-        config_dir = self._config['config_dir']
+        config_dir = self.__config['config_dir']
 
-        self._driver = TaskDriverFactory.create(config=config['driver'],
-                                                config_dir=config_dir,
-                                                task_queue =task_queue_config)
+        self.__driver = TaskDriverFactory.create(config=config['driver'],
+                                                 config_dir=config_dir,
+                                                 task_queue =task_queue_config)
 
-        self._scheduler = TaskScheduler(manager=self, config=scheduler_config)
+        self.__scheduler = TaskScheduler(manager=self, config=scheduler_config)
 
-        self._info = {}
-        self._start_at = datetime.now()
+        self.__info = {}
+        self.__start_at = datetime.now()
 
         if rpc_config:
-            self._rpc = RpcDaemon(rpc_config)
+            self.__rpc = RpcDaemon(rpc_config)
 
             # Create information
             host_info = System.host_info()
-            self._info = {
+            self.__info = {
                 'hostname': host_info.name,
                 'address': host_info.ipv4,
                 'total_cpu': System.cpu_cores(),
-                'max_cpu': self._scheduler.max_cpu,
-                'start': str(self._start_at)
+                'max_cpu': self.__scheduler.max_cpu,
+                'start': str(self.__start_at)
             }
 
-            self._rpc.register('server', self.stats_procedure)
-            self._rpc.register('scheduler', self._scheduler.stats_procedure)
+            self.__rpc.register('server', self.stats_procedure)
+            self.__rpc.register('scheduler', self.__scheduler.stats_procedure)
 
-            self._rpc.start()
+            self.__rpc.start()
 
     def stats_procedure(self, *_args, **_kwargs):
         # Currently args and kwargs not in use.
-        info = self._info.copy()
-        info['uptime'] = str(datetime.now() - self._start_at)
+        info = self.__info.copy()
+        info['uptime'] = str(datetime.now() - self.__start_at)
 
         return info
 
-    def _default_opts(self, config):
+    def __default_opts(self, config):
         return dict([(k, config.setdefault(k, v))
-                     for k, v in self._DEFAULT_OPTS.items()])
+                     for k, v in self.__DEFAULTOPTS.items()])
 
-    def _run(self):
-        task_driver = self._driver
-        task_scheduler = self._scheduler
+    def __run(self):
+        task_driver = self.__driver
+        task_scheduler = self.__scheduler
 
         try:
             while task_scheduler.is_ready() and task_driver.is_ready():
@@ -122,25 +108,25 @@ class TaskManager:
                 inputs = task_driver.inputs(task_info.iid)
 
                 task_scheduler.run(Task(task_info, worker, config, inputs,
-                                   **self._config))
+                                   **self.__config))
 
             # Before terminate, wait all threads
             task_scheduler.wait_all()
 
         except (KeyboardInterrupt, SystemExit):
             # Stop RPC server
-            if self._rpc:
-                self._rpc.stop()
+            if self.__rpc:
+                self.__rpc.stop()
 
     def task_complete(self, task_obj):
         if not isinstance(task_obj, Task):
             raise UndineException('Unexpected task object')
 
         if task_obj.is_success:
-            self._driver.done(task_obj.tid, task_obj.result, task_obj.report)
+            self.__driver.done(task_obj.tid, task_obj.result, task_obj.report)
         else:
-            self._driver.fail(task_obj.tid, task_obj.message)
+            self.__driver.fail(task_obj.tid, task_obj.message)
 
     @staticmethod
     def run():
-        TaskManager(ConfigParser.load_config())._run()
+        TaskManager(__load_config()).__run()

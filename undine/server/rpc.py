@@ -6,29 +6,29 @@ class RpcDaemon:
     def __init__(self, config):
         queue_name = 'rpc-{}'.format(System.host_info().ipv4)
 
-        self._rpc = RabbitMQRpcServer(config, queue_name, self._call)
+        self.__rpc = RabbitMQRpcServer(config, queue_name, self.__call)
 
-        self._callbacks = dict()
+        self.__callbacks = dict()
 
     @staticmethod
-    def _default():
+    def __default():
         return 'Command is not ready'
 
-    def _call(self, command, *args, **kwargs):
+    def __call(self, command, *args, **kwargs):
         if command == 'all':
-            return {name: func() for name, func in self._callbacks.items()}
+            return {name: func() for name, func in self.__callbacks.items()}
         elif command == 'list':
-            return {command: ['all'] + list(self._callbacks.keys())}
-        elif command in self._callbacks:
-            return {command: self._callbacks[command](*args, **kwargs)}
+            return {command: ['all'] + list(self.__callbacks.keys())}
+        elif command in self.__callbacks:
+            return {command: self.__callbacks[command](*args, **kwargs)}
         else:
-            return {command: self._default()}
+            return {command: self.__default()}
 
     def start(self):
-        self._rpc.start()
+        self.__rpc.start()
 
     def stop(self):
-        self._rpc.stop()
+        self.__rpc.stop()
 
     def register(self, command, callback):
-        self._callbacks[command] = callback
+        self.__callbacks[command] = callback

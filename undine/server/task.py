@@ -16,8 +16,8 @@ class Task:
     unlink that.
     """
 
-    _DEFAULT_SUCCESS_MESSAGE = 'Success'
-    _DEFAULT_FAIL_MESSAGE = 'Fail'
+    __DEFAULT_SUCCESS_MESSAGE = 'Success'
+    __DEFAULT_FAIL_MESSAGE = 'Fail'
 
     def __init__(self, t_info, w_info, c_info, i_info, **kwargs):
         """
@@ -57,75 +57,75 @@ class Task:
         if not isinstance(i_info, info.InputInfo):
             raise UndineException('i_info is not InputInfo')
 
-        self._task = t_info
-        self._worker = w_info
+        self.__task = t_info
+        self.__worker = w_info
 
         dir_ = kwargs.setdefault('result_dir', '')
         ext_ = kwargs.setdefault('result_ext', '.json')
 
-        self._config_path = c_info.path
-        self._result_path = Path.gen_file_path(dir_, t_info.tid, ext_)
+        self.__config_path = c_info.path
+        self.__result_path = Path.gen_file_path(dir_, t_info.tid, ext_)
 
-        if self._worker.use_file_inputs:
+        if self.__worker.use_file_inputs:
             input_dir = kwargs.setdefault('input_dir', None)
         else:
             input_dir = None
 
-        self._input_list = i_info.inputs(input_dir)
+        self.__input_list = i_info.inputs(input_dir)
 
         # Result container
-        self._message = None
-        self._result = None
+        self.__message = None
+        self.__result = None
 
     @property
     def cmd(self):
-        arg_string = self._worker.argument                          \
-                                 .replace('%C', self._config_path)  \
-                                 .replace('%R', self._result_path)  \
-                                 .replace('%I', self._input_list)
+        arg_string = self.__worker.argument                           \
+                                  .replace('%C', self.__config_path)  \
+                                  .replace('%R', self.__result_path)  \
+                                  .replace('%I', self.__input_list)
 
-        return "{0} {1}".format(self._worker.cmd, arg_string)
+        return "{0} {1}".format(self.__worker.cmd, arg_string)
 
     @property
     def tid(self):
-        return self._task.tid
+        return self.__task.tid
 
     @property
     def report(self):
-        return self._task.reportable
+        return self.__task.reportable
 
     @property
     def message(self):
-        return self._message
+        return self.__message
 
     @property
     def result(self):
-        return self._result
+        return self.__result
 
     @property
     def is_success(self):
-        return bool(self._result)
+        return bool(self.__result)
 
-    def success(self, message = _DEFAULT_SUCCESS_MESSAGE):
+    def success(self, message = __DEFAULT_SUCCESS_MESSAGE):
         """
         Check done and load result context from result file.
 
         :param str message: Command line success message.
         :return: None
         """
-        if os.path.exists(self._result_path):
-            self._result = open(self._result_path, 'r').read()
-            os.unlink(self._result_path)
+        if os.path.exists(self.__result_path):
+            self.__result = open(self.__result_path, 'r').read()
+            os.unlink(self.__result_path)
         else:
-            self._result = message
+            self.__result = message
 
-        self._message = message
+        self.__message = message
 
-    def fail(self, message = _DEFAULT_FAIL_MESSAGE):
+    def fail(self, message = __DEFAULT_FAIL_MESSAGE):
         """
         Check fail
 
         :param str message: Command line error message.
         :return: None
         """
-        self._message = message
+        self.__message = message
