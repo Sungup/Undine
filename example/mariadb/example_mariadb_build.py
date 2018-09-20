@@ -177,7 +177,7 @@ def db_build(rabbitmq_config, mariadb_config):
     mariadb.execute_multiple_dml(queries)
 
 
-def data_filling(rabbitmq_config, mariadb_config):
+def data_filling(rabbitmq_config, mariadb_config, input_type):
     config_info = '../json/task-config.json'
     input_info = '../json/task-inputs.json'
     worker_info = '../../config/config-json.json'
@@ -193,11 +193,14 @@ def data_filling(rabbitmq_config, mariadb_config):
     # 2. Insert worker
     worker = json.load(open(worker_info, 'r'))['driver']
 
+    args = '--type {type} {origin}'.format(type=input_type,
+                                           origin=worker['worker_arguments'])
+
     wid = client.publish_worker(name='worker1',
                                 command=worker['worker_command'],
-                                arguments=worker['worker_arguments'],
+                                arguments=args,
                                 worker_dir=worker['worker_dir'],
-                                file_input=True)
+                                file_input=bool(input_type == 'file'))
 
     # 3. Insert config
     config_items = dict()
@@ -241,6 +244,10 @@ if __name__ == '__main__':
     # 1. Parse program arguments
     parser = ArgumentParser(description='MariaDB example builder')
 
+    parser.add_argument('--type', dest='input_type',
+                        action='store', choices=['file', 'id'],
+                        default='file', help='Input argument type')
+
     parser.add_argument('-b', '--build', action='store_false',
                         dest='build', default=True, help="Don't Build tables")
 
@@ -254,4 +261,4 @@ if __name__ == '__main__':
         db_build(_rabbitmq_config, _mariadb_config)
 
     if options.fill:
-        data_filling(_rabbitmq_config, _mariadb_config)
+        data_filling(_rabbitmq_config, _mariadb_config, options.input_type)

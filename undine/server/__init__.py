@@ -1,5 +1,4 @@
 from argparse import ArgumentParser
-from collections import namedtuple
 from datetime import datetime
 from undine.server.scheduler import TaskScheduler
 from undine.server.task import Task
@@ -12,32 +11,34 @@ import os
 import json
 
 
-def __load_config():
-    _default = '/etc/aria/undine.json'
+class Config:
+    @staticmethod
+    def load_config():
+        _default = '/etc/aria/undine.json'
 
-    parser = ArgumentParser(description='Undine task manager.')
+        parser = ArgumentParser(description='Undine task manager.')
 
-    parser.add_argument('-c', '--config', dest='config_file', metavar='PATH',
-                        help='Config file path [default: '.format(_default),
-                        action='store', default=_default, required=True)
+        parser.add_argument('-c', '--config', dest='config', metavar='PATH',
+                            action='store', default=_default, required=True,
+                            help='Config file path [default: '.format(_default))
 
-    opts = parser.parse_args()
+        opts = parser.parse_args()
 
-    if not os.path.isfile(config.config_file):
-        raise UndineException('No such file at {}.'format(config.config_file))
+        if not os.path.isfile(opts.config):
+            raise UndineException('No such file at {}.'.format(opts.config))
 
-    return json.load(open(config.config_file, 'r'))
+        return json.load(open(opts.config, 'r'))
 
 
 class TaskManager:
-    __DEFAULTOPTS = {
+    __DEFAULT_OPTS = {
         'config_dir': '/tmp/config',
         'result_dir': '/tmp/result',
         'result_ext': '.log',
         'input_dir': None
     }
 
-    _DRIVER_ERR_MESSAGE = 'Driver configuration should be set in config file'
+    __DRIVER_ERR_MESSAGE = 'Driver configuration should be set in config file'
 
     def __init__(self, config):
         self.__config = self.__default_opts(config['manager'])
@@ -86,7 +87,7 @@ class TaskManager:
 
     def __default_opts(self, config):
         return dict([(k, config.setdefault(k, v))
-                     for k, v in self.__DEFAULTOPTS.items()])
+                     for k, v in self.__DEFAULT_OPTS.items()])
 
     def __run(self):
         task_driver = self.__driver
@@ -129,4 +130,4 @@ class TaskManager:
 
     @staticmethod
     def run():
-        TaskManager(__load_config()).__run()
+        TaskManager(Config.load_config()).__run()
