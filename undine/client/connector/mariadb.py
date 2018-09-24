@@ -29,7 +29,7 @@ class MariaDbConnector(BaseConnector):
         ''',
         'task_info': '''
           SELECT t.tid AS tid, t.name AS name,
-                 t.host, INET_NTOA(t.ip) AS ip, s.name AS state,
+                 t.host AS host, t.ip AS ip, s.name AS state,
                  t.mid AS mid,
                  t.cid AS cid, t.iid AS iid, t.wid AS wid,
                  t.issued, t.updated,

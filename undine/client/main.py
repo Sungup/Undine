@@ -1,4 +1,5 @@
 from undine.client import UndineClient
 
-if __name__ == '__main__':
+
+def main():
     UndineClient.run()

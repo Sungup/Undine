@@ -16,7 +16,7 @@ class UndineClient:
         # Global Argument
         parser.add_argument('-c', '--config', dest='config_file',
                             help='Config file path',
-                            default='config/client.json',
+                            default='/etc/aria/undine-client.json',
                             action='store', metavar='PATH')
 
         parser.add_argument('-f', '--form', dest='form',

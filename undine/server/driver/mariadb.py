@@ -27,7 +27,7 @@ class MariaDbDriver(BaseNetworkDriver):
         ''',
         'state': '''
             UPDATE task 
-               SET state = %(state)s, host = %(host)s, ip = INET_ATON(%(ip)s)
+               SET state = %(state)s, host = %(host)s, ip = %(ip)s
              WHERE tid = %(tid)s
         ''',
         'result': '''
@@ -41,18 +41,18 @@ class MariaDbDriver(BaseNetworkDriver):
         'cleanup': '''
             UPDATE task
                SET state = 'C'
-             WHERE ip = INET_ATON(%(ip)s) AND state = 'I'
+             WHERE ip = %(ip)s AND state = 'I'
         ''',
         'login': '''
             INSERT INTO host(name, ip, logged_in)
-                 VALUES(%(name)s, INET_ATON(%(ip)s), CURRENT_TIMESTAMP)
+                 VALUES(%(name)s, %(ip)s, CURRENT_TIMESTAMP)
             ON DUPLICATE KEY
             UPDATE name = %(name)s, logged_in = CURRENT_TIMESTAMP
         ''',
         'logout': '''
             UPDATE host
                SET logged_out = CURRENT_TIMESTAMP
-             WHERE ip = INET_ATON(%(ip)s)
+             WHERE ip = %(ip)s
         '''
     }
 
