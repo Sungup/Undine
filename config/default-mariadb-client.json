@@ -1,0 +1,22 @@
+{
+  "database": {
+    "type": "mariadb",
+    "host": "<DB_HOST_ADDRESS>",
+    "database": "<DB_NAME>",
+    "user": "<DB_USER_ID>",
+    "password": "<DB_USER_PWD>"
+  },
+  "task_queue": {
+    "host": "<RABBITMQ_HOST_ADDRESS>",
+    "vhost": "<RABBITMQ_VHOST_NAME>",
+    "queue": "<RABBITMQ_QUEUE_NAME>",
+    "user": "<RABBITMQ_USER_ID>",
+    "password": "<RABBITMQ_USER_PWD>"
+  },
+  "rpc": {
+    "host": "<RABBITMQ_HOST_ADDRESS>",
+    "vhost": "<RABBITMQ_VHOST_NAME>",
+    "user": "<RABBITMQ_USER_ID>",
+    "password": "<RABBITMQ_USER_PWD>"
+  }
+}

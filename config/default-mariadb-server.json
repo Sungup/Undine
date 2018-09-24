@@ -1,0 +1,36 @@
+{
+  "manager": {
+    "config_dir": "/tmp/undine/config",
+    "result_dir": "/tmp/undine/result",
+    "result_ext": ".log",
+    "input_dir": "<INPUT_FILE_HOME_PATH>"
+  },
+  "scheduler": {
+    "worker_max": 16,
+    "log_file": "/tmp/undine/sched.log",
+    "log_level": "info"
+  },
+  "driver": {
+    "type": "mariadb",
+    "config_ext": ".json",
+    "log_file": "/tmp/undine/driver.log",
+    "log_level": "info",
+    "host": "<DB_HOST_ADDRESS>",
+    "database": "<DB_NAME>",
+    "user": "<DB_USER_ID>",
+    "password": "<DB_USER_PWD>"
+  },
+  "task_queue": {
+    "host": "<RABBITMQ_HOST_ADDRESS>",
+    "vhost": "<RABBITMQ_VHOST_NAME>",
+    "queue": "<RABBITMQ_QUEUE_NAME>",
+    "user": "<RABBITMQ_USER_ID>",
+    "password": "<RABBITMQ_USER_PWD>"
+  },
+  "rpc": {
+    "host": "<RABBITMQ_HOST_ADDRESS>",
+    "vhost": "<RABBITMQ_VHOST_NAME>",
+    "user": "<RABBITMQ_USER_ID>",
+    "password": "<RABBITMQ_USER_PWD>"
+  }
+}

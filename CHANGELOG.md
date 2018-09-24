@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+## [v0.1.2]
+
+### Added
+
+- Add new module to setup the environments using the Undine.
+  - `undine.setup.database.__core__`: Basic interface class for DB initializer.
+  - `undine.setup.database.__mariadb__`: mariadb initializer class.
+  - `undine.setup.database`: Database build-up script.
+  - `undine.setup.generator.__setup_env__`: Default configuration container.
+  - `undine.setup.generator`: Configuration generator script.
+  - `undine.setup.main`: Environment setup script.
+- Now support `setuptools` to install the Undine.
+  - New command lines:
+    - `undine-cli`: Client tools to control the mariadb based undine server.
+    - `undine-svr`: Undine server daemon using the mariadb.
+    - `undine-setup`: Undine's environment setup tool.
+    - `undine-gen-conf`: Configuration file generator.
+    - `undine-db-init`: Database initializer.
+
+### Removed
+
+- Remove useless configurations in `config` directory.
+
+
+## [v0.1.1]
+
+### Changed
+
+- Now support the positional input arguments. 
+  - Add `file_input` field in worker table and modified related classes.
+  - Add all columns in insert query to sync with the REST API server's 
+    operation.
+- Change some notations in the core modules in `undine.server`
+
 ## [v0.1.0]
 
 ### Added
@@ -221,7 +257,9 @@ All notable changes to this project will be documented in this file.
 - Add basic config file
   - `config/config.json`: Default configure file of Undine.
   
-[Unreleased]: /../compare/v0.1.0...HEAD
+[Unreleased]: /../compare/v0.1.2...HEAD
+[v0.1.2]: /../compare/v0.1.1...v0.1.2
+[v0.1.1]: /../compare/v0.1.0...v0.1.1
 [v0.1.0]: /../compare/v0.0.7...v0.1.0
 [v0.0.7]: /../compare/v0.0.6...v0.0.7
 [v0.0.6]: /../compare/v0.0.5...v0.0.6

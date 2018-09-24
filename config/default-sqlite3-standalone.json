@@ -1,0 +1,20 @@
+{
+  "manager": {
+    "config_dir": "/tmp/undine/config",
+    "result_dir": "/tmp/undine/result",
+    "result_ext": ".log",
+    "input_dir": "<INPUT_FILE_HOME_PATH>"
+  },
+  "scheduler": {
+    "worker_max": 16,
+    "log_file": "/tmp/undine/sched.log",
+    "log_level": "info"
+  },
+  "driver": {
+    "type": "sqlite",
+    "config_ext": ".json",
+    "log_file": "/tmp/undine/driver.log",
+    "log_level": "info",
+    "db_file": "missions.sqlite3"
+  }
+}

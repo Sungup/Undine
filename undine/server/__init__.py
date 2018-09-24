@@ -18,9 +18,11 @@ class Config:
 
         parser = ArgumentParser(description='Undine task manager.')
 
-        parser.add_argument('-c', '--config', dest='config', metavar='PATH',
-                            action='store', default=_default, required=True,
-                            help='Config file path [default: '.format(_default))
+        parser.add_argument(
+            '-c', '--config', dest='config', metavar='PATH',
+            action='store', default=_default, required=True,
+            help='Config file path [default: {}]'.format(_default)
+        )
 
         opts = parser.parse_args()
 
