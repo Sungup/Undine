@@ -1,7 +1,7 @@
 from collections import namedtuple
 from argparse import ArgumentParser
+from undine.setup.generator import __setup_env__ as env
 
-import undine.setup.generator.__setup_env__ as env
 import json
 
 

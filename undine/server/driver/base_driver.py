@@ -2,8 +2,7 @@ from undine.database.rabbitmq import RabbitMQConnector
 from undine.utils.exception import UndineException, VirtualMethodException
 from undine.utils.system import print_console_header
 from undine.utils.system import System
-
-import undine.utils.logging as logging
+from undine.utils import logging
 
 import json
 

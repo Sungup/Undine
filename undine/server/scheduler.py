@@ -2,10 +2,10 @@ from datetime import datetime
 from multiprocessing import Queue
 from threading import Semaphore, Thread, Lock
 from undine.utils.system import System
+from undine.utils import logging
 from time import sleep
 
 import subprocess
-import undine.utils.logging as logging
 
 
 class TaskThread:
@@ -148,7 +148,7 @@ class TaskScheduler:
         self._state.add(task.tid)
 
         thread.start()
-        
+
         # Sleep during task_interval to avoid the task interference.
         sleep(self._task_interval)
 

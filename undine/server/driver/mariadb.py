@@ -44,8 +44,8 @@ class MariaDbDriver(BaseNetworkDriver):
              WHERE ip = %(ip)s AND state = 'I'
         ''',
         'login': '''
-            INSERT INTO host(name, ip, logged_in)
-                 VALUES(%(name)s, %(ip)s, CURRENT_TIMESTAMP)
+            INSERT INTO host(name, ip, registered, logged_in)
+                 VALUES(%(name)s, %(ip)s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
             ON DUPLICATE KEY
             UPDATE name = %(name)s, logged_in = CURRENT_TIMESTAMP
         ''',

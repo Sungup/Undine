@@ -1,9 +1,7 @@
 from argparse import ArgumentParser
 from collections import namedtuple
+from undine.setup import generator, database
 from undine.utils.exception import UndineException
-
-import undine.setup.generator as generator
-import undine.setup.database as database
 
 
 def main():
