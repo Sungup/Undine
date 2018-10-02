@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Add time-interval options to the `undine.server.scheduler`
+  - Some task cli tools make interferences while running at a time.
+  - To solve this problem, add time-interval between tasks.
+
+### Changed
+
+- Fix some bugs in mariadb sql queries in server and client module.
+
 ## [v0.1.2]
 
 ### Added

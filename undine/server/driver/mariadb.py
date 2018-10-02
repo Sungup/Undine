@@ -27,16 +27,16 @@ class MariaDbDriver(BaseNetworkDriver):
         ''',
         'state': '''
             UPDATE task 
-               SET state = %(state)s, host = %(host)s, ip = %(ip)s
+               SET state = %(state)s, host = %(host)s, ip = %(ip)s, updated = CURRENT_TIMESTAMP
              WHERE tid = %(tid)s
         ''',
         'result': '''
-            INSERT INTO result(tid, content)
-                 VALUES (%(tid)s, %(content)s)
+            INSERT INTO result(tid, content, reported)
+                 VALUES (%(tid)s, %(content)s, CURRENT_TIMESTAMP)
         ''',
         'error': '''
-            INSERT INTO error(tid, message)
-                 VALUES (%(tid)s, %(message)s)
+            INSERT INTO error(tid, message, informed)
+                 VALUES (%(tid)s, %(message)s, CURRENT_TIMESTAMP)
         ''',
         'cleanup': '''
             UPDATE task

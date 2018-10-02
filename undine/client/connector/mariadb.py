@@ -71,13 +71,13 @@ class MariaDbConnector(BaseConnector):
 
         # Trashing task information.
         'trash_result': '''
-          INSERT INTO trash (tid, generated, category, content)
-          SELECT tid, reported, 'result', content FROM result
+          INSERT INTO trash (tid, generated, category, content, trashed)
+          SELECT tid, reported, 'result', content, CURRENT_TIMESTAMP FROM result
            WHERE tid IN (%s)
         ''',
         'trash_error': '''
-          INSERT INTO trash (tid, generated, category, content)
-          SELECT tid, informed, 'error', message FROM error
+          INSERT INTO trash (tid, generated, category, content, trashed)
+          SELECT tid, informed, 'error', message, CURRENT_TIMESTAMP FROM error
            WHERE tid IN (%s)
         ''',
         'delete_result': '''
@@ -88,7 +88,7 @@ class MariaDbConnector(BaseConnector):
         ''',
         'cancel_task': '''
           UPDATE task
-             SET state = 'C', host = NULL, ip = NULL
+             SET state = 'C', host = NULL, ip = NULL, updated = CURRENT_TIMESTAMP
            WHERE tid IN (%s)
         ''',
 
@@ -106,7 +106,7 @@ class MariaDbConnector(BaseConnector):
         # Retry task
         'retry_task': '''
           UPDATE task
-             SET state = 'R', host = NULL, ip = NULL
+             SET state = 'R', host = NULL, ip = NULL, updated = CURRENT_TIMESTAMP
            WHERE tid IN (%s)
         '''
     }

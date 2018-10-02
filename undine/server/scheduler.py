@@ -2,6 +2,7 @@ from datetime import datetime
 from multiprocessing import Queue
 from threading import Semaphore, Thread, Lock
 from undine.utils.system import System
+from time import sleep
 
 import subprocess
 import undine.utils.logging as logging
@@ -64,6 +65,8 @@ class TaskScheduler:
     _SCHEDULER_LOGGER_NAME = 'undine-scheduler'
     _SCHEDULER_LOGGER_PATH = '/tmp/{}.log'.format(_SCHEDULER_LOGGER_NAME)
     _SCHEDULER_LOGGER_LEVEL = 'ERROR'
+    _SCHEDULER_TASK_INTERVAL = '1'
+    _MAX_CPU = 999999
 
     def _log_string(self, name, task):
         if logging.is_debug(self._logger):
@@ -74,11 +77,18 @@ class TaskScheduler:
 
     def __init__(self, manager, config):
         system_cpu = System.cpu_cores() - 1
-        config_cpu = int(config.setdefault('max_cpu', '0'))
+        config_cpu = int(config.setdefault('max_cpu', self._MAX_CPU))
+        intereval = int(config.setdefault('task_interval',
+                                          self._SCHEDULER_TASK_INTERVAL))
 
-        self._workers = max(system_cpu, config_cpu)
+        # If configed # of cpus is 0, change the config_cpu to MAX_CPU value
+        if config_cpu == 0:
+            config_cpu = self._MAX_CPU
+
+        self._workers = min(system_cpu, config_cpu)
         self._manager = manager
         self._pool = Semaphore(self._workers)
+        self._task_interval = interval
 
         # Initialize SchedulerState
         self._state = _SchedulerStats(self._workers)
@@ -138,6 +148,9 @@ class TaskScheduler:
         self._state.add(task.tid)
 
         thread.start()
+        
+        # Sleep during task_interval to avoid the task interference.
+        sleep(self._task_interval)
 
     def stats_procedure(self, *_args, **_kwargs):
         # Currently args and kwargs not in use.

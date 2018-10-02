@@ -6,7 +6,7 @@ import setuptools
 # ==================================================
 NAME = 'Undine'
 AUTHOR = 'Sungup Moon'
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 EMAIL = 'sungup@me.com'
 LICENSE = 'MIT'
 DESCRIPTION = 'Undine, the CLI program automation package.'

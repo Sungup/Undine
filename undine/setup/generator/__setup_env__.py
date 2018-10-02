@@ -94,7 +94,9 @@ __DEFAULT_CONFIG = {
             __OptItem('log_file', str, '/tmp/undine/sched.log', 'PATH', True,
                       'Scheduler log file path'),
             __OptItem('log_level', str, 'info', 'LEVEL', True,
-                      'Scheduler log inform level')
+                      'Scheduler log inform level'),
+            __OptItem('task_interval', int, 1, 'SEC', True,
+                      'Sleep interval between tasks')
         ),
         __Options(
             'driver',
