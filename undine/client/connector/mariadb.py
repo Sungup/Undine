@@ -88,7 +88,7 @@ class MariaDbConnector(BaseConnector):
         ''',
         'cancel_task': '''
           UPDATE task
-             SET state = 'C', host = NULL, ip = NULL, updated = CURRENT_TIMESTAMP
+             SET state = 'C', host = '', ip = '', updated = CURRENT_TIMESTAMP
            WHERE tid IN (%s)
         ''',
 
@@ -106,7 +106,7 @@ class MariaDbConnector(BaseConnector):
         # Retry task
         'retry_task': '''
           UPDATE task
-             SET state = 'R', host = NULL, ip = NULL, updated = CURRENT_TIMESTAMP
+             SET state = 'R', host = '', ip = '', updated = CURRENT_TIMESTAMP
            WHERE tid IN (%s)
         '''
     }

@@ -28,7 +28,7 @@ ENTRY_POINTS = {
 }
 
 PACKAGES = setuptools.find_packages(
-    exclude=['example', 'tmp', 'undine_cli.py', 'undine_svr.py']
+    exclude=['example', 'tmp']
 )
 
 INSTALL_REQUIRES = [

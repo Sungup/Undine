@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v0.1.3]
+
 ### Added
 
 - Add time-interval options to the `undine.server.scheduler`
@@ -13,6 +15,14 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Fix some bugs in mariadb sql queries in server and client module.
+- Change arguments type of config file in `undine-db-init`.
+- Change some column default value from NULL to '' in mariadb connectors.
+
+
+### Removed
+
+- Remove useless python file in root. (`undine_cli.py`, `undine_svr.py`)
+
 
 ## [v0.1.2]
 
@@ -267,7 +277,9 @@ All notable changes to this project will be documented in this file.
 - Add basic config file
   - `config/config.json`: Default configure file of Undine.
   
-[Unreleased]: /../compare/v0.1.2...HEAD
+[Unreleased]: /../compare/v0.1.3...HEAD
+[v0.1.3]: /../compare/v0.1.2...v0.1.3
+[v0.1.2]: /../compare/v0.1.1...v0.1.2
 [v0.1.2]: /../compare/v0.1.1...v0.1.2
 [v0.1.1]: /../compare/v0.1.0...v0.1.1
 [v0.1.0]: /../compare/v0.0.7...v0.1.0

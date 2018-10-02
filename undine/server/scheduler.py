@@ -78,10 +78,11 @@ class TaskScheduler:
     def __init__(self, manager, config):
         system_cpu = System.cpu_cores() - 1
         config_cpu = int(config.setdefault('max_cpu', self._MAX_CPU))
-        intereval = int(config.setdefault('task_interval',
-                                          self._SCHEDULER_TASK_INTERVAL))
+        interval = int(config.setdefault('task_interval',
+                                         self._SCHEDULER_TASK_INTERVAL))
 
-        # If configed # of cpus is 0, change the config_cpu to MAX_CPU value
+        # If the configured # of CPUs is 0, change the config_cpu to MAX_CPU.
+        # value
         if config_cpu == 0:
             config_cpu = self._MAX_CPU
 

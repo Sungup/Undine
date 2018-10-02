@@ -9,7 +9,7 @@ def add_arguments(parser):
     _default = '/etc/aria/undine.json'
 
     parser.add_argument(
-        'config_file', metavar='PATH',
+        '-c', '--config', dest='config_file', metavar='PATH',
         action='store', default=_default,
         help='Config file path [default: {}]'.format(_default)
     )

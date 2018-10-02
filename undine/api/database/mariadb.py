@@ -12,7 +12,7 @@ class MariaDbClient(BaseNetworkClient):
             INSERT INTO task(tid, name, cid, iid, wid, mid,
                              reportable, issued, updated, host, ip, state)
             VALUES(%(tid)s, %(name)s, %(cid)s, %(iid)s, %(wid)s, %(mid)s,
-                   %(reportable)s, NOW(), NULL, NULL, NULL, 'R')
+                   %(reportable)s, NOW(), NULL, '', '', 'R')
         ''',
         'worker': '''
             INSERT INTO worker(wid, name, command, arguments,
